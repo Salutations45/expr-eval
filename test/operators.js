@@ -2,9 +2,9 @@
 
 'use strict';
 
-var assert = require('assert');
-var Parser = require('../dist/bundle').Parser;
-var spy = require('./lib/spy');
+const assert = require('assert');
+const Parser = require('../dist/bundle').Parser;
+const spy = require('./lib/spy');
 
 function returnTrue() {
   return true;
@@ -19,7 +19,7 @@ function assertCloseTo(expected, actual, delta) {
 }
 
 describe('Operators', async function () {
-  var parser = new Parser();
+  const parser = new Parser();
 
   describe('== operator', async function () {
     it('2 == 3', async function () {
@@ -163,16 +163,16 @@ describe('Operators', async function () {
     });
 
     it('skips rhs when lhs is false', async function () {
-      var notCalled = spy(returnFalse);
+      const notCalled = spy(returnFalse);
 
-      assert.strictEqual(await Parser.evaluate('false and notCalled()', { notCalled: notCalled }), false);
+      assert.strictEqual(await Parser.evaluate('false and notCalled()', { notCalled }), false);
       assert.strictEqual(notCalled.called, false);
     });
 
     it('evaluates rhs when lhs is true', async function () {
-      var called = spy(returnFalse);
+      const called = spy(returnFalse);
 
-      assert.strictEqual(await Parser.evaluate('true and called()', { called: called }), false);
+      assert.strictEqual(await Parser.evaluate('true and called()', { called }), false);
       assert.strictEqual(called.called, true);
     });
   });
@@ -203,45 +203,45 @@ describe('Operators', async function () {
     });
 
     it('skips rhs when lhs is true', async function () {
-      var notCalled = spy(returnFalse);
+      const notCalled = spy(returnFalse);
 
-      assert.strictEqual(await Parser.evaluate('true or notCalled()', { notCalled: notCalled }), true);
+      assert.strictEqual(await Parser.evaluate('true or notCalled()', { notCalled }), true);
       assert.strictEqual(notCalled.called, false);
     });
 
     it('evaluates rhs when lhs is false', async function () {
-      var called = spy(returnTrue);
+      const called = spy(returnTrue);
 
-      assert.strictEqual(await Parser.evaluate('false or called()', { called: called }), true);
+      assert.strictEqual(await Parser.evaluate('false or called()', { called }), true);
       assert.strictEqual(called.called, true);
     });
   });
 
   describe('in operator', async function () {
-    var parser = new Parser();
+    const parser = new Parser();
 
     it('"a" in ["a", "b"]', async function () {
-      assert.strictEqual(await parser.evaluate('"a" in toto', { 'toto': ['a', 'b'] }), true);
+      assert.strictEqual(await parser.evaluate('"a" in toto', { toto: ['a', 'b'] }), true);
     });
 
     it('"a" in ["b", "a"]', async function () {
-      assert.strictEqual(await parser.evaluate('"a" in toto', { 'toto': ['b', 'a'] }), true);
+      assert.strictEqual(await parser.evaluate('"a" in toto', { toto: ['b', 'a'] }), true);
     });
 
     it('3 in [4, 3]', async function () {
-      assert.strictEqual(await parser.evaluate('3 in toto', { 'toto': [4, 3] }), true);
+      assert.strictEqual(await parser.evaluate('3 in toto', { toto: [4, 3] }), true);
     });
 
     it('"c" in ["a", "b"]', async function () {
-      assert.strictEqual(await parser.evaluate('"c" in toto', { 'toto': ['a', 'b'] }), false);
+      assert.strictEqual(await parser.evaluate('"c" in toto', { toto: ['a', 'b'] }), false);
     });
 
     it('"c" in ["b", "a"]', async function () {
-      assert.strictEqual(await parser.evaluate('"c" in toto', { 'toto': ['b', 'a'] }), false);
+      assert.strictEqual(await parser.evaluate('"c" in toto', { toto: ['b', 'a'] }), false);
     });
 
     it('3 in [1, 2]', async function () {
-      assert.strictEqual(await parser.evaluate('3 in toto', { 'toto': [1, 2] }), false);
+      assert.strictEqual(await parser.evaluate('3 in toto', { toto: [1, 2] }), false);
     });
   });
 
@@ -280,7 +280,7 @@ describe('Operators', async function () {
   });
 
   describe('conditional operator', async function () {
-    var parser = new Parser();
+    const parser = new Parser();
 
     it('1 ? 2 : 0 ? 3 : 4', async function () {
       assert.strictEqual(await parser.evaluate('1 ? 2 : 0 ? 3 : 4'), 2);
@@ -320,7 +320,7 @@ describe('Operators', async function () {
   });
 
   describe('length operator', async function () {
-    var parser = new Parser();
+    const parser = new Parser();
 
     it('should return 0 for empty strings', async function () {
       assert.strictEqual(await parser.evaluate('length ""'), 0);
@@ -383,7 +383,7 @@ describe('Operators', async function () {
 
   describe('sin(x)', async function () {
     it('returns the correct value', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
       assert.strictEqual(await parser.evaluate('sin 0'), 0);
       assertCloseTo(await parser.evaluate('sin 0.5'), 0.479425538604203, delta);
       assertCloseTo(await parser.evaluate('sin 1'), 0.8414709848078965, delta);
@@ -401,7 +401,7 @@ describe('Operators', async function () {
 
   describe('cos(x)', async function () {
     it('returns the correct value', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
       assert.strictEqual(await parser.evaluate('cos 0'), 1);
       assertCloseTo(await parser.evaluate('cos 0.5'), 0.8775825618903728, delta);
       assertCloseTo(await parser.evaluate('cos 1'), 0.5403023058681398, delta);
@@ -419,7 +419,7 @@ describe('Operators', async function () {
 
   describe('tan(x)', async function () {
     it('returns the correct value', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
       assert.strictEqual(await parser.evaluate('tan 0'), 0);
       assertCloseTo(await parser.evaluate('tan 0.5'), 0.5463024898437905, delta);
       assertCloseTo(await parser.evaluate('tan 1'), 1.5574077246549023, delta);
@@ -437,7 +437,7 @@ describe('Operators', async function () {
 
   describe('asin(x)', async function () {
     it('returns the correct value', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
       assert.strictEqual(await parser.evaluate('asin 0'), 0);
       assertCloseTo(await parser.evaluate('asin 0.5'), 0.5235987755982989, delta);
       assertCloseTo(await parser.evaluate('asin -0.5'), -0.5235987755982989, delta);
@@ -451,7 +451,7 @@ describe('Operators', async function () {
 
   describe('acos(x)', async function () {
     it('returns the correct value', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
       assert.strictEqual(await parser.evaluate('acos 0'), Math.PI / 2);
       assertCloseTo(await parser.evaluate('acos 0.5'), 1.0471975511965979, delta);
       assertCloseTo(await parser.evaluate('acos -0.5'), 2.0943951023931957, delta);
@@ -465,7 +465,7 @@ describe('Operators', async function () {
 
   describe('atan(x)', async function () {
     it('returns the correct value', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
       assert.strictEqual(await parser.evaluate('atan 0'), 0);
       assertCloseTo(await parser.evaluate('atan 0.5'), 0.4636476090008061, delta);
       assertCloseTo(await parser.evaluate('atan -0.5'), -0.4636476090008061, delta);
@@ -485,7 +485,7 @@ describe('Operators', async function () {
 
   describe('sinh(x)', async function () {
     it('returns the correct value', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
       assert.strictEqual(await parser.evaluate('sinh 0'), 0);
       assertCloseTo(await parser.evaluate('sinh 0.5'), 0.5210953054937474, delta);
       assertCloseTo(await parser.evaluate('sinh -0.5'), -0.5210953054937474, delta);
@@ -506,7 +506,7 @@ describe('Operators', async function () {
 
   describe('cosh(x)', async function () {
     it('returns the correct value', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
       assert.strictEqual(await parser.evaluate('cosh 0'), 1);
       assertCloseTo(await parser.evaluate('cosh 0.5'), 1.1276259652063807, delta);
       assertCloseTo(await parser.evaluate('cosh -0.5'), 1.1276259652063807, delta);
@@ -527,7 +527,7 @@ describe('Operators', async function () {
 
   describe('tanh(x)', async function () {
     it('returns the correct value', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
       assert.strictEqual(await parser.evaluate('tanh 0'), 0);
       assertCloseTo(await parser.evaluate('tanh 0.00001'), 0.000009999999999621023, delta);
       assertCloseTo(await parser.evaluate('tanh 0.25'), 0.24491866240370924, delta);
@@ -556,7 +556,7 @@ describe('Operators', async function () {
 
   describe('asinh(x)', async function () {
     it('returns the correct value', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
       assert.strictEqual(await parser.evaluate('asinh 0'), 0);
       assertCloseTo(await parser.evaluate('asinh 0.5'), 0.48121182505960347, delta);
       assertCloseTo(await parser.evaluate('asinh -0.5'), -0.48121182505960347, delta);
@@ -579,7 +579,7 @@ describe('Operators', async function () {
 
   describe('acosh(x)', async function () {
     it('returns the correct value', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
       assert.ok(isNaN(await parser.evaluate('acosh 0')));
       assert.ok(isNaN(await parser.evaluate('acosh 0.5')));
       assert.ok(isNaN(await parser.evaluate('acosh -0.5')));
@@ -600,7 +600,7 @@ describe('Operators', async function () {
 
   describe('atanh(x)', async function () {
     it('returns the correct value', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
       assert.strictEqual(await parser.evaluate('atanh 0'), 0);
       assertCloseTo(await parser.evaluate('atanh 0.25'), 0.25541281188299536, delta);
       assertCloseTo(await parser.evaluate('atanh -0.25'), -0.25541281188299536, delta);
@@ -617,7 +617,7 @@ describe('Operators', async function () {
 
   describe('sqrt(x)', async function () {
     it('returns the square root of its argument', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
       assert.strictEqual(await parser.evaluate('sqrt 0'), 0);
       assertCloseTo(await parser.evaluate('sqrt 0.5'), 0.7071067811865476, delta);
       assert.strictEqual(await parser.evaluate('sqrt 1'), 1);
@@ -634,7 +634,7 @@ describe('Operators', async function () {
 
   describe('ln/log operator', async function () {
     it('returns the natural logarithm of its argument', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
       assert.strictEqual(await Parser.evaluate('ln 0'), -Infinity);
       assert.strictEqual(await Parser.evaluate('log 0'), -Infinity);
       assertCloseTo(await Parser.evaluate('ln 0.5'), -0.6931471805599453, delta);
@@ -657,7 +657,7 @@ describe('Operators', async function () {
 
   describe('log10 operator', async function () {
     it('returns the base-10 logarithm of its argument', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
       assert.strictEqual(await Parser.evaluate('log10 0'), -Infinity);
       assert.strictEqual(await Parser.evaluate('lg 0'), -Infinity);
       assertCloseTo(await Parser.evaluate('log10 0.5'), -0.3010299956639812, delta);
@@ -786,7 +786,7 @@ describe('Operators', async function () {
 
   describe('exp(x)', async function () {
     it('rounds to the nearest integer', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
       assert.strictEqual(await parser.evaluate('exp 0'), 1);
       assertCloseTo(await parser.evaluate('exp 0.5'), 1.6487212707001282, delta);
       assertCloseTo(await parser.evaluate('exp -0.5'), 0.6065306597126334, delta);
@@ -884,7 +884,7 @@ describe('Operators', async function () {
     });
 
     it('returns approximation for fractions', async function () {
-      var delta = 1e-14;
+      const delta = 1e-14;
       assertCloseTo(await parser.evaluate('(-2.5)!'), 2.36327180120735, delta);
       assertCloseTo(await parser.evaluate('(-1.5)!'), -3.54490770181103, delta);
       assertCloseTo(await parser.evaluate('(-0.75)!'), 3.625609908221908, delta);
@@ -910,19 +910,19 @@ describe('Operators', async function () {
 
   describe('[] operator', async function () {
     it('a[0]', async function () {
-      assert.strictEqual(await Parser.evaluate('a[0]', { a: [ 4, 3, 2, 1 ] }), 4);
+      assert.strictEqual(await Parser.evaluate('a[0]', { a: [4, 3, 2, 1] }), 4);
     });
 
     it('a[0.1]', async function () {
-      assert.strictEqual(await Parser.evaluate('a[0.1]', { a: [ 4, 3, 2, 1 ] }), 4);
+      assert.strictEqual(await Parser.evaluate('a[0.1]', { a: [4, 3, 2, 1] }), 4);
     });
 
     it('a[3]', async function () {
-      assert.strictEqual(await Parser.evaluate('a[3]', { a: [ 4, 3, 2, 1 ] }), 1);
+      assert.strictEqual(await Parser.evaluate('a[3]', { a: [4, 3, 2, 1] }), 1);
     });
 
     it('a[3 - 2]', async function () {
-      assert.strictEqual(await Parser.evaluate('a[3 - 2]', { a: [ 4, 3, 2, 1 ] }), 3);
+      assert.strictEqual(await Parser.evaluate('a[3 - 2]', { a: [4, 3, 2, 1] }), 3);
     });
 
     it('a["foo"]', async function () {
@@ -930,7 +930,7 @@ describe('Operators', async function () {
     });
 
     it('a[2]^3', async function () {
-      assert.strictEqual(await Parser.evaluate('a[2]^3', { a: [ 1, 2, 3, 4 ] }), 27);
+      assert.strictEqual(await Parser.evaluate('a[2]^3', { a: [1, 2, 3, 4] }), 27);
     });
   });
 
@@ -954,14 +954,14 @@ describe('Operators', async function () {
 
   describe('cbrt(x)', async function () {
     it('returns the cube root of x', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
 
       assert.ok(isNaN(await parser.evaluate('cbrt(0/0)')));
       assert.strictEqual(await parser.evaluate('cbrt -1'), -1);
       assert.strictEqual(await parser.evaluate('cbrt 0'), 0);
-      assert.strictEqual(await parser.evaluate('cbrt(-1/0)'), -1/0);
+      assert.strictEqual(await parser.evaluate('cbrt(-1/0)'), -1 / 0);
       assert.strictEqual(await parser.evaluate('cbrt 1'), 1);
-      assert.strictEqual(await parser.evaluate('cbrt(1/0)'), 1/0);
+      assert.strictEqual(await parser.evaluate('cbrt(1/0)'), 1 / 0);
       assertCloseTo(await parser.evaluate('cbrt 2'), 1.2599210498948732, delta);
       assertCloseTo(await parser.evaluate('cbrt -2'), -1.2599210498948732, delta);
       assert.strictEqual(await parser.evaluate('cbrt 8'), 2);
@@ -977,7 +977,7 @@ describe('Operators', async function () {
 
   describe('expm1(x)', async function () {
     it('returns e^x - 1', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
 
       assert.ok(isNaN(await parser.evaluate('expm1(0/0)')));
       assertCloseTo(await parser.evaluate('expm1 -1'), -0.6321205588285577, delta);
@@ -994,10 +994,10 @@ describe('Operators', async function () {
 
   describe('log1p(x)', async function () {
     it('returns e^x - 1', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
 
       assert.ok(isNaN(await parser.evaluate('log1p(0/0)')));
-      assert.strictEqual(await parser.evaluate('log1p -1'), -1/0);
+      assert.strictEqual(await parser.evaluate('log1p -1'), -1 / 0);
       assert.strictEqual(await parser.evaluate('log1p 0'), 0);
       assertCloseTo(await parser.evaluate('log1p 1'), 0.6931471805599453, delta);
       assert.ok(isNaN(await parser.evaluate('log1p -2')));
@@ -1010,11 +1010,11 @@ describe('Operators', async function () {
 
   describe('log2(x)', async function () {
     it('returns the base 2 log of x', async function () {
-      var delta = 1e-15;
+      const delta = 1e-15;
 
       assert.ok(isNaN(await parser.evaluate('log2(0/0)')));
       assert.ok(isNaN(await parser.evaluate('log2 -1')));
-      assert.strictEqual(await parser.evaluate('log2 0'), -1/0);
+      assert.strictEqual(await parser.evaluate('log2 0'), -1 / 0);
       assert.strictEqual(await Parser.evaluate('log2 1'), 0);
       assert.strictEqual(await Parser.evaluate('log2 2'), 1);
       assert.strictEqual(await Parser.evaluate('log2 3'), 1.584962500721156);

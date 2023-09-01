@@ -2,15 +2,15 @@
 
 'use strict';
 
-var assert = require('assert');
-var Parser = require('../dist/bundle').Parser;
+const assert = require('assert');
+const Parser = require('../dist/bundle').Parser;
 
 describe('Parser', async function () {
   [
     { name: 'normal parse()', parser: new Parser() },
     { name: 'disallowing member access', parser: new Parser({ allowMemberAccess: false }) }
   ].forEach(function (tcase) {
-    var parser = tcase.parser;
+    const parser = tcase.parser;
     describe(tcase.name, function () {
       it('should skip comments', async function () {
         assert.strictEqual(await parser.evaluate('2/* comment */+/* another comment */3'), 5);
@@ -234,7 +234,7 @@ describe('Parser', async function () {
         assert.strictEqual(parser.parse('sin;').toString(), '(sin)');
         assert.strictEqual(parser.parse('(sin)').toString(), 'sin');
         assert.strictEqual(parser.parse('sin; (2)^3').toString(), '(sin;(2 ^ 3))');
-        assert.deepStrictEqual(await parser.parse('f(sin, sqrt)').evaluate({ f: function (a, b) { return [ a, b ]; }}), [ Math.sin, Math.sqrt ]);
+        assert.deepStrictEqual(await parser.parse('f(sin, sqrt)').evaluate({ f: function (a, b) { return [a, b]; } }), [Math.sin, Math.sqrt]);
         assert.strictEqual(await parser.parse('sin').evaluate(), Math.sin);
         assert.strictEqual(await parser.parse('cos;').evaluate(), Math.cos);
         assert.strictEqual(await parser.parse('cos;tan').evaluate(), Math.tan);
@@ -259,31 +259,31 @@ describe('Parser', async function () {
       });
 
       it('should parse valid variable names correctly', async function () {
-        assert.deepStrictEqual(parser.parse('a').variables(), [ 'a' ]);
-        assert.deepStrictEqual(parser.parse('abc').variables(), [ 'abc' ]);
-        assert.deepStrictEqual(parser.parse('a+b').variables(), [ 'a', 'b' ]);
-        assert.deepStrictEqual(parser.parse('ab+c').variables(), [ 'ab', 'c' ]);
-        assert.deepStrictEqual(parser.parse('a1').variables(), [ 'a1' ]);
-        assert.deepStrictEqual(parser.parse('a_1').variables(), [ 'a_1' ]);
-        assert.deepStrictEqual(parser.parse('a_').variables(), [ 'a_' ]);
-        assert.deepStrictEqual(parser.parse('a_c').variables(), [ 'a_c' ]);
-        assert.deepStrictEqual(parser.parse('A').variables(), [ 'A' ]);
-        assert.deepStrictEqual(parser.parse('ABC').variables(), [ 'ABC' ]);
-        assert.deepStrictEqual(parser.parse('A+B').variables(), [ 'A', 'B' ]);
-        assert.deepStrictEqual(parser.parse('AB+C').variables(), [ 'AB', 'C' ]);
-        assert.deepStrictEqual(parser.parse('A1').variables(), [ 'A1' ]);
-        assert.deepStrictEqual(parser.parse('A_1').variables(), [ 'A_1' ]);
-        assert.deepStrictEqual(parser.parse('A_C').variables(), [ 'A_C' ]);
-        assert.deepStrictEqual(parser.parse('abcdefg/hijklmnop+qrstuvwxyz').variables(), [ 'abcdefg', 'hijklmnop', 'qrstuvwxyz' ]);
-        assert.deepStrictEqual(parser.parse('ABCDEFG/HIJKLMNOP+QRSTUVWXYZ').variables(), [ 'ABCDEFG', 'HIJKLMNOP', 'QRSTUVWXYZ' ]);
-        assert.deepStrictEqual(parser.parse('abc123+def456*ghi789/jkl0').variables(), [ 'abc123', 'def456', 'ghi789', 'jkl0' ]);
-        assert.deepStrictEqual(parser.parse('_').variables(), [ '_' ]);
-        assert.deepStrictEqual(parser.parse('_x').variables(), [ '_x' ]);
-        assert.deepStrictEqual(parser.parse('$x').variables(), [ '$x' ]);
-        assert.deepStrictEqual(parser.parse('$xyz').variables(), [ '$xyz' ]);
-        assert.deepStrictEqual(parser.parse('$a_sdf').variables(), [ '$a_sdf' ]);
-        assert.deepStrictEqual(parser.parse('$xyz_123').variables(), [ '$xyz_123' ]);
-        assert.deepStrictEqual(parser.parse('_xyz_123').variables(), [ '_xyz_123' ]);
+        assert.deepStrictEqual(parser.parse('a').variables(), ['a']);
+        assert.deepStrictEqual(parser.parse('abc').variables(), ['abc']);
+        assert.deepStrictEqual(parser.parse('a+b').variables(), ['a', 'b']);
+        assert.deepStrictEqual(parser.parse('ab+c').variables(), ['ab', 'c']);
+        assert.deepStrictEqual(parser.parse('a1').variables(), ['a1']);
+        assert.deepStrictEqual(parser.parse('a_1').variables(), ['a_1']);
+        assert.deepStrictEqual(parser.parse('a_').variables(), ['a_']);
+        assert.deepStrictEqual(parser.parse('a_c').variables(), ['a_c']);
+        assert.deepStrictEqual(parser.parse('A').variables(), ['A']);
+        assert.deepStrictEqual(parser.parse('ABC').variables(), ['ABC']);
+        assert.deepStrictEqual(parser.parse('A+B').variables(), ['A', 'B']);
+        assert.deepStrictEqual(parser.parse('AB+C').variables(), ['AB', 'C']);
+        assert.deepStrictEqual(parser.parse('A1').variables(), ['A1']);
+        assert.deepStrictEqual(parser.parse('A_1').variables(), ['A_1']);
+        assert.deepStrictEqual(parser.parse('A_C').variables(), ['A_C']);
+        assert.deepStrictEqual(parser.parse('abcdefg/hijklmnop+qrstuvwxyz').variables(), ['abcdefg', 'hijklmnop', 'qrstuvwxyz']);
+        assert.deepStrictEqual(parser.parse('ABCDEFG/HIJKLMNOP+QRSTUVWXYZ').variables(), ['ABCDEFG', 'HIJKLMNOP', 'QRSTUVWXYZ']);
+        assert.deepStrictEqual(parser.parse('abc123+def456*ghi789/jkl0').variables(), ['abc123', 'def456', 'ghi789', 'jkl0']);
+        assert.deepStrictEqual(parser.parse('_').variables(), ['_']);
+        assert.deepStrictEqual(parser.parse('_x').variables(), ['_x']);
+        assert.deepStrictEqual(parser.parse('$x').variables(), ['$x']);
+        assert.deepStrictEqual(parser.parse('$xyz').variables(), ['$xyz']);
+        assert.deepStrictEqual(parser.parse('$a_sdf').variables(), ['$a_sdf']);
+        assert.deepStrictEqual(parser.parse('$xyz_123').variables(), ['$xyz_123']);
+        assert.deepStrictEqual(parser.parse('_xyz_123').variables(), ['_xyz_123']);
       });
 
       it('should not parse invalid variables', async function () {
@@ -329,7 +329,7 @@ describe('Parser', async function () {
       });
 
       it('should allow operators to be disabled', async function () {
-        var parser = new Parser({
+        const parser = new Parser({
           operators: {
             add: false,
             sin: false,
@@ -346,25 +346,25 @@ describe('Parser', async function () {
       });
 
       it('should allow operators to be explicitly enabled', async function () {
-        var parser = new Parser({
+        const parser = new Parser({
           operators: {
             add: true,
             sqrt: true,
             divide: true,
-            'in': true,
+            in: true,
             assignment: true
           }
         });
         assert.strictEqual(await parser.evaluate('+(-1)'), -1);
         assert.strictEqual(await parser.evaluate('sqrt(16)'), 4);
         assert.strictEqual(await parser.evaluate('4 / 6'), 2 / 3);
-        assert.strictEqual(await parser.evaluate('3 in array', { array: [ 1, 2, 3 ] }), true);
+        assert.strictEqual(await parser.evaluate('3 in array', { array: [1, 2, 3] }), true);
         assert.strictEqual(await parser.evaluate('x = 4', { x: 2 }), 4);
       });
     });
 
     it('should allow addition operator to be disabled', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
           add: false
         }
@@ -374,7 +374,7 @@ describe('Parser', async function () {
     });
 
     it('should allow comparison operators to be disabled', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
           comparison: false
         }
@@ -389,7 +389,7 @@ describe('Parser', async function () {
     });
 
     it('should allow concatenate operator to be disabled', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
           concatenate: false
         }
@@ -399,7 +399,7 @@ describe('Parser', async function () {
     });
 
     it('should allow conditional operator to be disabled', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
           conditional: false
         }
@@ -409,7 +409,7 @@ describe('Parser', async function () {
     });
 
     it('should allow division operator to be disabled', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
           divide: false
         }
@@ -419,7 +419,7 @@ describe('Parser', async function () {
     });
 
     it('should allow factorial operator to be disabled', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
           factorial: false
         }
@@ -429,29 +429,29 @@ describe('Parser', async function () {
     });
 
     it('should allow in operator to be enabled', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
-          'in': true
+          in: true
         }
       });
 
       assert.throws(function () { parser.parse('5 * in'); }, Error);
-      assert.strictEqual(await parser.evaluate('5 in a', { a: [ 2, 3, 5 ] }), true);
+      assert.strictEqual(await parser.evaluate('5 in a', { a: [2, 3, 5] }), true);
     });
 
     it('should allow in operator to be disabled', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
-          'in': false
+          in: false
         }
       });
 
       assert.throws(function () { parser.parse('5 in a'); }, Error);
-      assert.strictEqual(await parser.evaluate('5 * in', { 'in': 3 }), 15);
+      assert.strictEqual(await parser.evaluate('5 * in', { in: 3 }), 15);
     });
 
     it('should allow logical operators to be disabled', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
           logical: false
         }
@@ -465,7 +465,7 @@ describe('Parser', async function () {
     });
 
     it('should allow multiplication operator to be disabled', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
           multiply: false
         }
@@ -475,7 +475,7 @@ describe('Parser', async function () {
     });
 
     it('should allow power operator to be disabled', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
           power: false
         }
@@ -485,7 +485,7 @@ describe('Parser', async function () {
     });
 
     it('should allow remainder operator to be disabled', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
           remainder: false
         }
@@ -495,7 +495,7 @@ describe('Parser', async function () {
     });
 
     it('should allow subtraction operator to be disabled', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
           subtract: false
         }
@@ -505,9 +505,9 @@ describe('Parser', async function () {
     });
 
     it('should allow assignment operator to be enabled', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
-          'assignment': true
+          assignment: true
         }
       });
 
@@ -516,9 +516,9 @@ describe('Parser', async function () {
     });
 
     it('should allow assignment operator to be disabled', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
-          'assignment': false
+          assignment: false
         }
       });
 
@@ -526,24 +526,24 @@ describe('Parser', async function () {
     });
 
     it('should allow assignment operator by default', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
 
       assert.strictEqual(await parser.evaluate('a = 5', {}), 5);
     });
 
     it('should allow arrays to be enabled', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
           array: true
         }
       });
 
       assert.deepStrictEqual(await parser.evaluate('[1, 2, 3]'), [1, 2, 3]);
-      assert.strictEqual(await parser.evaluate('a[0]', { a: [ 4, 2 ] }), 4);
+      assert.strictEqual(await parser.evaluate('a[0]', { a: [4, 2] }), 4);
     });
 
     it('should allow arrays to be disabled', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
           array: false
         }
@@ -554,36 +554,36 @@ describe('Parser', async function () {
     });
 
     it('Should allow functions to be disabled', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
           fndef: false
         }
       });
-      var obj = {};
+      const obj = {};
       assert.throws(function () { parser.parse('f(x) = x * x'); }, /function definition is not permitted/);
       assert.strictEqual('f' in obj, false);
       assert.strictEqual('x' in obj, false);
     });
 
     it('Should allow functions to be enabled', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
           fndef: true
         }
       });
-      var obj = {};
+      const obj = {};
       assert.strictEqual(await parser.evaluate('f(x) = x * x', obj) instanceof Function, true);
       assert.strictEqual(obj.f instanceof Function, true);
       assert.strictEqual(await obj.f(3), 9);
     });
 
     it('Disabling assignment should disable function definition', async function () {
-      var parser = new Parser({
+      const parser = new Parser({
         operators: {
           assignment: false
         }
       });
-      var obj = {};
+      const obj = {};
       assert.throws(function () { parser.parse('f(x) = x * x'); }, Error);
       assert.strictEqual('f' in obj, false);
       assert.strictEqual('x' in obj, false);
@@ -591,7 +591,7 @@ describe('Parser', async function () {
   });
 
   it('should disallow member access', async function () {
-    var parser = new Parser({ allowMemberAccess: false });
+    const parser = new Parser({ allowMemberAccess: false });
     await assert.rejects(async function () { return parser.evaluate('min.bind'); }, /member access is not permitted/);
     await assert.rejects(async function () { return parser.evaluate('min.bind()'); }, /member access is not permitted/);
     await assert.rejects(async function () { return parser.evaluate('32 + min.bind'); }, /member access is not permitted/);

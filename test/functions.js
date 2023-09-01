@@ -2,8 +2,8 @@
 
 'use strict';
 
-var assert = require('assert');
-var Parser = require('../dist/bundle').Parser;
+const assert = require('assert');
+const Parser = require('../dist/bundle').Parser;
 
 describe('Functions', async function () {
   describe('roundTo()', async function () {
@@ -37,10 +37,10 @@ describe('Functions', async function () {
 
     // Big numbers
     it('should handle roundTo(3000000000000000000000000.1233, 1)', async function () {
-      assert.strictEqual(await Parser.evaluate('roundTo(3000000000000000000000000.1233, 1)'), 3000000000000000000000000.1);
+      assert.strictEqual(await Parser.evaluate('roundTo(3000000000000000000000000.1233, 1)'), 3000000000000000000000000.1);// eslint-disable-line no-loss-of-precision
     });
     it('should handle roundTo(-3000000000000000000000000.1233, 1)', async function () {
-      assert.strictEqual(await Parser.evaluate('roundTo(-3000000000000000000000000.1233, 1)'), -3000000000000000000000000.1);
+      assert.strictEqual(await Parser.evaluate('roundTo(-3000000000000000000000000.1233, 1)'), -3000000000000000000000000.1);// eslint-disable-line no-loss-of-precision
     });
     it('should handle roundTo(3.12345e14, -13)', async function () {
       assert.strictEqual(await Parser.evaluate('roundTo(3.12345e14, -13)'), 3.1e14);
@@ -63,19 +63,19 @@ describe('Functions', async function () {
 
   describe('random()', async function () {
     it('should return a number from zero to 1', async function () {
-      var expr = Parser.parse('random()');
-      for (var i = 0; i < 1000; i++) {
-        var x = await expr.evaluate();
+      const expr = Parser.parse('random()');
+      for (let i = 0; i < 1000; i++) {
+        const x = await expr.evaluate();
         assert.ok(x >= 0 && x < 1);
       }
     });
 
     it('should return different numbers', async function () {
-      var expr = Parser.parse('random()');
-      var distinct = {};
-      var sum = 0;
-      for (var i = 0; i < 1000; i++) {
-        var x = await expr.evaluate();
+      const expr = Parser.parse('random()');
+      const distinct = {};
+      let sum = 0;
+      for (let i = 0; i < 1000; i++) {
+        const x = await expr.evaluate();
         sum += x;
         distinct[x] = true;
       }
@@ -87,7 +87,7 @@ describe('Functions', async function () {
 
   describe('fac(n)', async function () {
     it('should return n!', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('fac(0)'), 1);
       assert.strictEqual(await parser.evaluate('fac(1)'), 1);
       assert.strictEqual(await parser.evaluate('fac(2)'), 2);
@@ -104,7 +104,7 @@ describe('Functions', async function () {
 
   describe('min(a, b, ...)', async function () {
     it('should return the smallest value', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('min()'), Infinity);
       assert.strictEqual(await parser.evaluate('min([])'), Infinity);
       assert.strictEqual(await parser.evaluate('min(1)'), 1);
@@ -118,7 +118,7 @@ describe('Functions', async function () {
 
   describe('max(a, b, ...)', async function () {
     it('should return the largest value', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('max()'), -Infinity);
       assert.strictEqual(await parser.evaluate('max([])'), -Infinity);
       assert.strictEqual(await parser.evaluate('max(1)'), 1);
@@ -131,7 +131,7 @@ describe('Functions', async function () {
   });
 
   describe('hypot(a, b, ...)', async function () {
-    var parser = new Parser();
+    const parser = new Parser();
 
     it('should return the hypotenuse', async function () {
       assert.strictEqual(await parser.evaluate('hypot()'), 0);
@@ -155,7 +155,7 @@ describe('Functions', async function () {
 
   describe('pow(x, y)', async function () {
     it('should return x^y', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('pow(3,2)'), 9);
       assert.strictEqual(await parser.evaluate('pow(E,1)'), Math.exp(1));
     });
@@ -163,7 +163,7 @@ describe('Functions', async function () {
 
   describe('atan2(y, x)', async function () {
     it('should return atan(y / x)', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('atan2(90, 15)'), 1.4056476493802699);
       assert.strictEqual(await parser.evaluate('atan2(15, 90)'), 0.16514867741462683);
       assert.strictEqual(await parser.evaluate('atan2(0, 0)'), 0);
@@ -197,7 +197,7 @@ describe('Functions', async function () {
   });
 
   describe('gamma(x)', async function () {
-    var parser = new Parser();
+    const parser = new Parser();
 
     it('returns exact answer for integers', async function () {
       assert.strictEqual(await parser.evaluate('gamma(0)'), Infinity);
@@ -220,7 +220,7 @@ describe('Functions', async function () {
     });
 
     it('returns approximation for fractions', async function () {
-      var delta = 1e-14;
+      const delta = 1e-14;
       assert.strictEqual(await parser.evaluate('gamma(-10)'), Infinity);
       assert.ok(Math.abs(await parser.evaluate('gamma(-2.5)') - -0.9453087204829419) <= delta);
       assert.strictEqual(await parser.evaluate('gamma(-2)'), Infinity);
@@ -251,73 +251,73 @@ describe('Functions', async function () {
 
   describe('map(f, a)', async function () {
     it('should work on empty arrays', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.deepStrictEqual(await parser.evaluate('map(random, [])'), []);
     });
 
     it('should fail if first argument is not a function', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.rejects(function () { return parser.evaluate('map(4, [])'); }, /not a function/);
     });
 
     it('should fail if second argument is not an array', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.rejects(function () { return parser.evaluate('map(random, 0)'); }, /not an array/);
     });
 
     it('should call built-in functions', async function () {
-      var parser = new Parser();
-      assert.deepStrictEqual(await parser.evaluate('map(sqrt, [0, 1, 16, 81])'), [ 0, 1, 4, 9 ]);
-      assert.deepStrictEqual(await parser.evaluate('map(max, [2, 2, 2, 2, 2, 2])'), [ 2, 2, 2, 3, 4, 5 ]);
+      const parser = new Parser();
+      assert.deepStrictEqual(await parser.evaluate('map(sqrt, [0, 1, 16, 81])'), [0, 1, 4, 9]);
+      assert.deepStrictEqual(await parser.evaluate('map(max, [2, 2, 2, 2, 2, 2])'), [2, 2, 2, 3, 4, 5]);
     });
 
     it('should call self-defined functions', async function () {
-      var parser = new Parser();
-      assert.deepStrictEqual(await parser.evaluate('f(a) = a*a; map(f, [0, 1, 2, 3, 4])'), [ 0, 1, 4, 9, 16 ]);
+      const parser = new Parser();
+      assert.deepStrictEqual(await parser.evaluate('f(a) = a*a; map(f, [0, 1, 2, 3, 4])'), [0, 1, 4, 9, 16]);
     });
 
     it('should call self-defined functions with index', async function () {
-      var parser = new Parser();
-      assert.deepStrictEqual(await parser.evaluate('f(a, i) = a+i; map(f, [1,3,5,7,9])'), [ 1, 4, 7, 10, 13 ]);
-      assert.deepStrictEqual(await parser.evaluate('map(anon(a, i) = a+i, [1,3,5,7,9])'), [ 1, 4, 7, 10, 13 ]);
-      assert.deepStrictEqual(await parser.evaluate('f(a, i) = i; map(f, [1,3,5,7,9])'), [ 0, 1, 2, 3, 4 ]);
+      const parser = new Parser();
+      assert.deepStrictEqual(await parser.evaluate('f(a, i) = a+i; map(f, [1,3,5,7,9])'), [1, 4, 7, 10, 13]);
+      assert.deepStrictEqual(await parser.evaluate('map(anon(a, i) = a+i, [1,3,5,7,9])'), [1, 4, 7, 10, 13]);
+      assert.deepStrictEqual(await parser.evaluate('f(a, i) = i; map(f, [1,3,5,7,9])'), [0, 1, 2, 3, 4]);
     });
   });
 
   describe('fold(f, init, array)', async function () {
     it('should return the initial value on an empty array', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('fold(atan2, 15, [])'), 15);
     });
 
     it('should fail if first argument is not a function', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.rejects(function () { return parser.evaluate('fold(4, 0, [])'); }, /not a function/);
     });
 
     it('should fail if third argument is not an array', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.rejects(function () { return parser.evaluate('fold(random, 0, 5)'); }, /not an array/);
     });
 
     it('should call built-in functions', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('fold(max, -1, [1, 3, 5, 4, 2, 0])'), 5);
       assert.strictEqual(await parser.evaluate('fold(min, 10, [1, 3, 5, 4, 2, 0, -2, -1])'), -2);
     });
 
     it('should call self-defined functions', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('f(a, b) = a*b; fold(f, 1, [1, 2, 3, 4, 5])'), 120);
     });
 
     it('should call self-defined functions with index', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('f(a, b, i) = a*i + b; fold(f, 100, [1,3,5,7,9])'), 193);
     });
 
     it('should start with the accumulator', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('f(a, b) = a*b; fold(f, 0, [1, 2, 3, 4, 5])'), 0);
       assert.strictEqual(await parser.evaluate('f(a, b) = a*b; fold(f, 1, [1, 2, 3, 4, 5])'), 120);
       assert.strictEqual(await parser.evaluate('f(a, b) = a*b; fold(f, 2, [1, 2, 3, 4, 5])'), 240);
@@ -327,51 +327,51 @@ describe('Functions', async function () {
 
   describe('filter(f, array)', async function () {
     it('should work on an empty array', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.deepStrictEqual(await parser.evaluate('filter(random, [])'), []);
     });
 
     it('should fail if first argument is not a function', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.rejects(function () { return parser.evaluate('filter(4, [])'); }, /not a function/);
     });
 
     it('should fail if second argument is not an array', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.rejects(function () { return parser.evaluate('filter(random, 5)'); }, /not an array/);
     });
 
     it('should call built-in functions', async function () {
-      var parser = new Parser();
-      assert.deepStrictEqual(await parser.evaluate('filter(not, [1, 0, false, true, 2, ""])'), [ 0, false, '' ]);
+      const parser = new Parser();
+      assert.deepStrictEqual(await parser.evaluate('filter(not, [1, 0, false, true, 2, ""])'), [0, false, '']);
     });
 
     it('should call self-defined functions', async function () {
-      var parser = new Parser();
-      assert.deepStrictEqual(await parser.evaluate('f(x) = x > 2; filter(f, [1, 2, 0, 3, -1, 4])'), [ 3, 4 ]);
+      const parser = new Parser();
+      assert.deepStrictEqual(await parser.evaluate('f(x) = x > 2; filter(f, [1, 2, 0, 3, -1, 4])'), [3, 4]);
       assert.deepStrictEqual(await parser.evaluate('f(x) = x > 2; filter(f, [1, 2, 0, 1.9, -1, -4])'), []);
     });
 
     it('should call self-defined functions with index', async function () {
-      var parser = new Parser();
-      assert.deepStrictEqual(await parser.evaluate('f(a, i) = a <= i; filter(f, [1,0,5,3,2])'), [ 0, 3, 2 ]);
-      assert.deepStrictEqual(await parser.evaluate('f(a, i) = i > 3; filter(f, [9,0,5,6,1,2,3,4])'), [ 1, 2, 3, 4 ]);
+      const parser = new Parser();
+      assert.deepStrictEqual(await parser.evaluate('f(a, i) = a <= i; filter(f, [1,0,5,3,2])'), [0, 3, 2]);
+      assert.deepStrictEqual(await parser.evaluate('f(a, i) = i > 3; filter(f, [9,0,5,6,1,2,3,4])'), [1, 2, 3, 4]);
     });
   });
 
   describe('indexOf(target, array)', async function () {
     it('should return -1 an empty array', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('indexOf(1, [])'), -1);
     });
 
     it('should fail if second argument is not an array or string', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.rejects(function () { return parser.evaluate('indexOf(5, 5)'); }, /not a string or array/);
     });
 
     it('should find values in the array', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('indexOf(1, [1,0,5,3,2])'), 0);
       assert.strictEqual(await parser.evaluate('indexOf(0, [1,0,5,3,2])'), 1);
       assert.strictEqual(await parser.evaluate('indexOf(5, [1,0,5,3,2])'), 2);
@@ -380,12 +380,12 @@ describe('Functions', async function () {
     });
 
     it('should find the first matching value in the array', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('indexOf(5, [5,0,5,3,2])'), 0);
     });
 
     it('should return -1 for no match', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('indexOf(2.5, [1,0,5,3,2])'), -1);
       assert.strictEqual(await parser.evaluate('indexOf("5", [1,0,5,3,2])'), -1);
     });
@@ -393,19 +393,19 @@ describe('Functions', async function () {
 
   describe('indexOf(target, string)', async function () {
     it('return -1 for indexOf("x", "")', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('indexOf("a", "")'), -1);
     });
 
     it('return 0 for indexOf("", *)', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('indexOf("", "")'), 0);
       assert.strictEqual(await parser.evaluate('indexOf("", "a")'), 0);
       assert.strictEqual(await parser.evaluate('indexOf("", "foobar")'), 0);
     });
 
     it('should find substrings in the string', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('indexOf("b", "bafdc")'), 0);
       assert.strictEqual(await parser.evaluate('indexOf("a", "bafdc")'), 1);
       assert.strictEqual(await parser.evaluate('indexOf("f", "bafdc")'), 2);
@@ -422,18 +422,18 @@ describe('Functions', async function () {
     });
 
     it('should find the first matching substring in the string', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('indexOf("c", "abcabcabc")'), 2);
       assert.strictEqual(await parser.evaluate('indexOf("ca", "abcabcabc")'), 2);
     });
 
     it('should find the entire string', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('indexOf("abcabcabc", "abcabcabc")'), 0);
     });
 
     it('should return -1 for no match', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('indexOf("x", "abcdefg")'), -1);
       assert.strictEqual(await parser.evaluate('indexOf("abd", "abcdefg")'), -1);
     });
@@ -441,23 +441,23 @@ describe('Functions', async function () {
 
   describe('join(sep, array)', async function () {
     it('should fail if second argument is not an array', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.rejects(function () { return parser.evaluate('join("x", "y")'); }, /not an array/);
     });
 
     it('should return an empty string on an empty array', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('join("x", [])'), '');
     });
 
     it('should work on a single-element array', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('join("x", ["a"])'), 'a');
       assert.strictEqual(await parser.evaluate('join("x", [5])'), '5');
     });
 
     it('should work on a multi-element arrays', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('join("x", ["a", "b", "c", 4])'), 'axbxcx4');
       assert.strictEqual(await parser.evaluate('join(", ", [1, 2])'), '1, 2');
       assert.strictEqual(await parser.evaluate('join("", [1, 2, 3])'), '123');
@@ -466,22 +466,22 @@ describe('Functions', async function () {
 
   describe('sum(array)', async function () {
     it('should fail if the argument is not an array', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.rejects(function () { return parser.evaluate('sum(1)'); }, /not an array/);
     });
 
     it('should return zero with an empty array', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('sum([])'), 0);
     });
 
     it('should work on a single-element array', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('sum([1])'), 1);
     });
 
     it('should work on a multi-element array', async function () {
-      var parser = new Parser();
+      const parser = new Parser();
       assert.strictEqual(await parser.evaluate('sum([1, 2])'), 3);
     });
   });
