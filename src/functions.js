@@ -282,6 +282,10 @@ export function arrayMap(f, a) {
   });
 }
 
+export function arrayMapAsync(f, a) {
+  return Promise.all(arrayMap(f, a));
+}
+
 export function arrayFold(f, init, a) {
   if (typeof f !== 'function') {
     throw new Error('First argument to fold is not a function');
@@ -306,6 +310,22 @@ export function arrayFilter(f, a) {
   });
 }
 
+export async function arrayFilterAsync(f, a) {
+  if (typeof f !== 'function') {
+    throw new Error('First argument to filter is not a function');
+  }
+  if (!Array.isArray(a)) {
+    throw new Error('Second argument to filter is not an array');
+  }
+
+  const promises = a.map((x, i) => f(x, i));
+  const values = await Promise.all(promises);
+
+  return a.filter(function (_, i) {
+    return values[i];
+  });
+}
+
 export function stringOrArrayIndexOf(target, s) {
   if (!(Array.isArray(s) || typeof s === 'string')) {
     throw new Error('Second argument to indexOf is not a string or array');
@@ -326,7 +346,7 @@ export function sign(x) {
   return ((x > 0) - (x < 0)) || +x;
 }
 
-var ONE_THIRD = 1/3;
+var ONE_THIRD = 1 / 3;
 export function cbrt(x) {
   return x < 0 ? -Math.pow(-x, ONE_THIRD) : Math.pow(x, ONE_THIRD);
 }

@@ -1,6 +1,6 @@
 import { INUMBER, IOP1, IOP2, IOP3, IVAR, IVARNAME, IFUNCALL, IFUNDEF, IEXPR, IEXPREVAL, IMEMBER, IENDSTATEMENT, IARRAY } from './instruction';
 
-export default function evaluate(tokens, expr, values) {
+export default async function evaluate(tokens, expr, values) {
   var nstack = [];
   var n1, n2, n3;
   var f, args, argCount;
@@ -20,25 +20,25 @@ export default function evaluate(tokens, expr, values) {
       n2 = nstack.pop();
       n1 = nstack.pop();
       if (item.value === 'and') {
-        nstack.push(n1 ? !!evaluate(n2, expr, values) : false);
+        nstack.push(n1 ? !!await evaluate(n2, expr, values) : false);
       } else if (item.value === 'or') {
-        nstack.push(n1 ? true : !!evaluate(n2, expr, values));
+        nstack.push(n1 ? true : !!await evaluate(n2, expr, values));
       } else if (item.value === '=') {
         f = expr.binaryOps[item.value];
-        nstack.push(f(n1, evaluate(n2, expr, values), values));
+        nstack.push(f(n1, await evaluate(n2, expr, values), values));
       } else {
         f = expr.binaryOps[item.value];
-        nstack.push(f(resolveExpression(n1, values), resolveExpression(n2, values)));
+        nstack.push(f(await resolveExpression(n1, values), await resolveExpression(n2, values)));
       }
     } else if (type === IOP3) {
       n3 = nstack.pop();
       n2 = nstack.pop();
       n1 = nstack.pop();
       if (item.value === '?') {
-        nstack.push(evaluate(n1 ? n2 : n3, expr, values));
+        nstack.push(await evaluate(n1 ? n2 : n3, expr, values));
       } else {
         f = expr.ternaryOps[item.value];
-        nstack.push(f(resolveExpression(n1, values), resolveExpression(n2, values), resolveExpression(n3, values)));
+        nstack.push(f(await resolveExpression(n1, values), await resolveExpression(n2, values), await resolveExpression(n3, values)));
       }
     } else if (type === IVAR) {
       if (/^__proto__|prototype|constructor$/.test(item.value)) {
@@ -68,7 +68,7 @@ export default function evaluate(tokens, expr, values) {
       }
       f = nstack.pop();
       if (f.apply && f.call) {
-        nstack.push(f.apply(undefined, args));
+        nstack.push(await f.apply(undefined, args));
       } else {
         throw new Error(f + ' is not a function');
       }
@@ -128,7 +128,7 @@ function createExpressionEvaluator(token, expr, values) {
   if (isExpressionEvaluator(token)) return token;
   return {
     type: IEXPREVAL,
-    value: function (scope) {
+    value: async function (scope) {
       return evaluate(token.value, expr, scope);
     }
   };
