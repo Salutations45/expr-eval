@@ -1,19 +1,19 @@
 import { INUMBER, IOP1, IOP2, IOP3, IVAR, IVARNAME, IFUNCALL, IFUNDEF, IEXPR, IEXPREVAL, IMEMBER, IENDSTATEMENT, IARRAY } from './instruction';
 
 export default async function evaluate(tokens, expr, values) {
-  var nstack = [];
-  var n1, n2, n3;
-  var f, args, argCount;
+  const nstack = [];
+  let n1, n2, n3;
+  let f, args, argCount;
 
   if (isExpressionEvaluator(tokens)) {
     return resolveExpression(tokens, values);
   }
 
-  var numTokens = tokens.length;
+  const numTokens = tokens.length;
 
-  for (var i = 0; i < numTokens; i++) {
-    var item = tokens[i];
-    var type = item.type;
+  for (let i = 0; i < numTokens; i++) {
+    const item = tokens[i];
+    const type = item.type;
     if (type === INUMBER || type === IVARNAME) {
       nstack.push(item.value);
     } else if (type === IOP2) {
@@ -49,7 +49,7 @@ export default async function evaluate(tokens, expr, values) {
       } else if (item.value in expr.unaryOps && expr.parser.isOperatorEnabled(item.value)) {
         nstack.push(expr.unaryOps[item.value]);
       } else {
-        var v = values[item.value];
+        const v = values[item.value];
         if (v !== undefined) {
           nstack.push(v);
         } else {
@@ -75,16 +75,16 @@ export default async function evaluate(tokens, expr, values) {
     } else if (type === IFUNDEF) {
       // Create closure to keep references to arguments and expression
       nstack.push((function () {
-        var n2 = nstack.pop();
-        var args = [];
-        var argCount = item.value;
+        const n2 = nstack.pop();
+        const args = [];
+        let argCount = item.value;
         while (argCount-- > 0) {
           args.unshift(nstack.pop());
         }
-        var n1 = nstack.pop();
-        var f = function () {
-          var scope = Object.assign({}, values);
-          for (var i = 0, len = args.length; i < len; i++) {
+        const n1 = nstack.pop();
+        const f = function () {
+          const scope = Object.assign({}, values);
+          for (let i = 0, len = args.length; i < len; i++) {
             scope[args[i]] = arguments[i];
           }
           return evaluate(n2, expr, scope);

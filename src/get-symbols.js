@@ -3,11 +3,11 @@ import contains from './contains';
 
 export default function getSymbols(tokens, symbols, options) {
   options = options || {};
-  var withMembers = !!options.withMembers;
-  var prevVar = null;
+  const withMembers = !!options.withMembers;
+  let prevVar = null;
 
-  for (var i = 0; i < tokens.length; i++) {
-    var item = tokens[i];
+  for (let i = 0; i < tokens.length; i++) {
+    const item = tokens[i];
     if (item.type === IVAR || item.type === IVARNAME) {
       if (!withMembers && !contains(symbols, item.value)) {
         symbols.push(item.value);

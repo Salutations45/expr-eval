@@ -1,12 +1,12 @@
 import { INUMBER, IOP1, IOP2, IOP3, IVAR, IVARNAME, IFUNCALL, IFUNDEF, IEXPR, IMEMBER, IENDSTATEMENT, IARRAY } from './instruction';
 
 export default function expressionToString(tokens, toJS) {
-  var nstack = [];
-  var n1, n2, n3;
-  var f, args, argCount;
-  for (var i = 0; i < tokens.length; i++) {
-    var item = tokens[i];
-    var type = item.type;
+  let nstack = [];
+  let n1, n2, n3;
+  let f, args, argCount;
+  for (let i = 0; i < tokens.length; i++) {
+    const item = tokens[i];
+    const type = item.type;
     if (type === INUMBER) {
       if (typeof item.value === 'number' && item.value < 0) {
         nstack.push('(' + item.value + ')');
@@ -115,9 +115,9 @@ export default function expressionToString(tokens, toJS) {
   }
   if (nstack.length > 1) {
     if (toJS) {
-      nstack = [ nstack.join(',') ];
+      nstack = [nstack.join(',')];
     } else {
-      nstack = [ nstack.join(';') ];
+      nstack = [nstack.join(';')];
     }
   }
   return String(nstack[0]);

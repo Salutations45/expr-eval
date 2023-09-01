@@ -1,13 +1,13 @@
 import { Instruction, INUMBER, IOP1, IOP2, IOP3, IVAR, IVARNAME, IEXPR, IMEMBER, IARRAY } from './instruction';
 
 export default function simplify(tokens, unaryOps, binaryOps, ternaryOps, values) {
-  var nstack = [];
-  var newexpression = [];
-  var n1, n2, n3;
-  var f;
-  for (var i = 0; i < tokens.length; i++) {
-    var item = tokens[i];
-    var type = item.type;
+  const nstack = [];
+  const newexpression = [];
+  let n1, n2, n3;
+  let f;
+  for (let i = 0; i < tokens.length; i++) {
+    let item = tokens[i];
+    const type = item.type;
     if (type === INUMBER || type === IVARNAME) {
       if (Array.isArray(item.value)) {
         nstack.push.apply(nstack, simplify(item.value.map(function (x) {
@@ -16,7 +16,7 @@ export default function simplify(tokens, unaryOps, binaryOps, ternaryOps, values
       } else {
         nstack.push(item);
       }
-    } else if (type === IVAR && values.hasOwnProperty(item.value)) {
+    } else if (type === IVAR && Object.keys(values).includes(item.value)) {
       item = new Instruction(INUMBER, values[item.value]);
       nstack.push(item);
     } else if (type === IOP2 && nstack.length > 1) {
@@ -49,7 +49,8 @@ export default function simplify(tokens, unaryOps, binaryOps, ternaryOps, values
     } else if (type === IMEMBER && nstack.length > 0) {
       n1 = nstack.pop();
       nstack.push(new Instruction(INUMBER, n1.value[item.value]));
-    } /* else if (type === IARRAY && nstack.length >= item.value) {
+    }// eslint-disable-line
+    /* else if (type === IARRAY && nstack.length >= item.value) {
       var length = item.value;
       while (length-- > 0) {
         newexpression.push(nstack.pop());

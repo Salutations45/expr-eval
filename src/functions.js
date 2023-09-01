@@ -118,22 +118,13 @@ function isInteger(value) {
   return isFinite(value) && (value === Math.round(value));
 }
 
-var GAMMA_G = 4.7421875;
-var GAMMA_P = [
-  0.99999999999999709182,
-  57.156235665862923517, -59.597960355475491248,
-  14.136097974741747174, -0.49191381609762019978,
-  0.33994649984811888699e-4,
-  0.46523628927048575665e-4, -0.98374475304879564677e-4,
-  0.15808870322491248884e-3, -0.21026444172410488319e-3,
-  0.21743961811521264320e-3, -0.16431810653676389022e-3,
-  0.84418223983852743293e-4, -0.26190838401581408670e-4,
-  0.36899182659531622704e-5
-];
+const GAMMA_G = 4.7421875;
+// eslint-disable-next-line no-loss-of-precision
+const GAMMA_P = [0.99999999999999709182, 57.156235665862923517, -59.597960355475491248, 14.136097974741747174, -0.49191381609762019978, 0.33994649984811888699e-4, 0.46523628927048575665e-4, -0.98374475304879564677e-4, 0.15808870322491248884e-3, -0.21026444172410488319e-3, 0.21743961811521264320e-3, -0.16431810653676389022e-3, 0.84418223983852743293e-4, -0.26190838401581408670e-4, 0.36899182659531622704e-5];
 
 // Gamma function from math.js
 export function gamma(n) {
-  var t, x;
+  let x;
 
   if (isInteger(n)) {
     if (n <= 0) {
@@ -144,8 +135,8 @@ export function gamma(n) {
       return Infinity; // Will overflow
     }
 
-    var value = n - 2;
-    var res = n - 1;
+    let value = n - 2;
+    let res = n - 1;
     while (value > 1) {
       res *= value;
       value--;
@@ -167,10 +158,10 @@ export function gamma(n) {
   }
 
   if (n > 85.0) { // Extended Stirling Approx
-    var twoN = n * n;
-    var threeN = twoN * n;
-    var fourN = threeN * n;
-    var fiveN = fourN * n;
+    const twoN = n * n;
+    const threeN = twoN * n;
+    const fourN = threeN * n;
+    const fiveN = fourN * n;
     return Math.sqrt(2 * Math.PI / n) * Math.pow((n / Math.E), n) *
       (1 + (1 / (12 * n)) + (1 / (288 * twoN)) - (139 / (51840 * threeN)) -
       (571 / (2488320 * fourN)) + (163879 / (209018880 * fiveN)) +
@@ -179,11 +170,11 @@ export function gamma(n) {
 
   --n;
   x = GAMMA_P[0];
-  for (var i = 1; i < GAMMA_P.length; ++i) {
+  for (let i = 1; i < GAMMA_P.length; ++i) {
     x += GAMMA_P[i] / (n + i);
   }
 
-  t = n + GAMMA_G + 0.5;
+  const t = n + GAMMA_G + 0.5;
   return Math.sqrt(2 * Math.PI) * Math.pow(t, n + 0.5) * Math.exp(-t) * x;
 }
 
@@ -195,11 +186,11 @@ export function stringOrArrayLength(s) {
 }
 
 export function hypot() {
-  var sum = 0;
-  var larg = 0;
-  for (var i = 0; i < arguments.length; i++) {
-    var arg = Math.abs(arguments[i]);
-    var div;
+  let sum = 0;
+  let larg = 0;
+  for (let i = 0; i < arguments.length; i++) {
+    const arg = Math.abs(arguments[i]);
+    let div;
     if (larg < arg) {
       div = larg / arg;
       sum = (sum * div * div) + 1;
@@ -346,7 +337,7 @@ export function sign(x) {
   return ((x > 0) - (x < 0)) || +x;
 }
 
-var ONE_THIRD = 1 / 3;
+const ONE_THIRD = 1 / 3;
 export function cbrt(x) {
   return x < 0 ? -Math.pow(-x, ONE_THIRD) : Math.pow(x, ONE_THIRD);
 }
