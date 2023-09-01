@@ -2,6 +2,7 @@ import { T, Token } from './token';
 import { Instruction, I, ternaryInstruction, binaryInstruction, unaryInstruction } from './instruction';
 import contains from './contains';
 import { TokenStream } from './token-stream';
+import { Value } from './value';
 
 export class ParserState {
 
@@ -23,7 +24,7 @@ export class ParserState {
     return (this.nextToken = this.tokens.next());
   }
 
-  tokenMatches(token, value?) {
+  tokenMatches(token: Token, value?) {
     if (typeof value === 'undefined') {
       return true;
     } else if (Array.isArray(value)) {
@@ -47,23 +48,24 @@ export class ParserState {
     this.nextToken = this.savedNextToken;
   }
 
-  accept(type, value?) {
-    if (this.nextToken?.type === type && this.tokenMatches(this.nextToken, value)) {
+  accept(type: T, value?: Value) {
+    if (this.nextToken?.type === type && this.tokenMatches(this.nextToken!, value)) {
       this.next();
       return true;
     }
     return false;
   }
 
-  expect(type, value?) {
+  expect(type: T, value?: Value) {
     if (!this.accept(type, value)) {
       const coords = this.tokens.getCoordinates();
       throw new Error('parse error [' + coords.line + ':' + coords.column + ']: Expected ' + (value || type));
     }
   }
 
-  parseAtom(instr) {
+  parseAtom(instr: Instruction[]) {
     const unaryOps = this.tokens.parser.unaryOps;
+
     function isPrefixOperator(token) {
       return token.value in unaryOps;
     }
@@ -107,7 +109,7 @@ export class ParserState {
     }
   }
 
-  parseUntilEndStatement(instr, exprInstr: Instruction[]) {
+  parseUntilEndStatement(instr, exprInstr) {
     if (!this.accept(T.TSEMICOLON)) return false;
     if (this.nextToken && this.nextToken.type !== T.TEOF && !(this.nextToken.type === T.TPAREN && this.nextToken.value === ')')) {
       exprInstr.push(new Instruction(I.IENDSTATEMENT));

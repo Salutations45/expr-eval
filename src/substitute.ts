@@ -1,6 +1,7 @@
+import { Expression } from './expression';
 import { Instruction, I, ternaryInstruction, binaryInstruction, unaryInstruction } from './instruction';
 
-export default function substitute(tokens, variable, expr) {
+export default function substitute(tokens: Instruction[], variable: string, expr: Expression) {
   const newexpression: Instruction[] = [];
   for (let i = 0; i < tokens.length; i++) {
     const item = tokens[i];

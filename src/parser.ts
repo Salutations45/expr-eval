@@ -18,70 +18,73 @@ import {
   andOperator,
   orOperator,
   inOperator,
-  sinh,
-  cosh,
-  tanh,
-  asinh,
-  acosh,
-  atanh,
-  log10,
   neg,
   not,
-  trunc,
   random,
-  factorial,
-  gamma,
   stringOrArrayLength,
-  hypot,
   condition,
-  roundTo,
   setVar,
   arrayIndex,
   max,
   min,
-  arrayMapAsync,
-  arrayFold,
-  arrayFilterAsync,
   stringOrArrayIndexOf,
   arrayJoin,
   sign,
-  cbrt,
-  expm1,
-  log1p,
-  log2,
   sum
 } from './functions';
 import { Value } from './value';
 
+enum OptType {
+  ADD = 'add',
+  SUBSTRACT = 'subtract',
+  MULTIPLY = 'multiply',
+  DIVIDE = 'divide',
+  REMAINDER = 'remainder',
+  POWER = 'power',
+  COMPARAISON = 'comparison',
+  LOGIC = 'logical',
+  CONDITION = 'conditional',
+  ASSIGN = 'assignment',
+  ARRAY = 'array',
+  FNDEF = 'fndef'
+}
+
+const optionNameMap = {
+  '+': OptType.ADD,
+  '-': OptType.SUBSTRACT,
+  '*': OptType.MULTIPLY,
+  '/': OptType.DIVIDE,
+  '%': OptType.REMAINDER,
+  '^': OptType.POWER,
+  '<': OptType.COMPARAISON,
+  '>': OptType.COMPARAISON,
+  '<=': OptType.COMPARAISON,
+  '>=': OptType.COMPARAISON,
+  '==': OptType.COMPARAISON,
+  '!=': OptType.COMPARAISON,
+  and: OptType.LOGIC,
+  or: OptType.LOGIC,
+  not: OptType.LOGIC,
+  '?': OptType.CONDITION,
+  ':': OptType.CONDITION,
+  '=': OptType.ASSIGN,
+  '[': OptType.ARRAY,
+  '()=': OptType.FNDEF
+};
+
+
 export interface OperatorOptions {
     add?: boolean,
     comparison?: boolean,
-    concatenate?: boolean,
+    concat?: boolean,
     conditional?: boolean,
     divide?: boolean,
-    factorial?: boolean,
     logical?: boolean,
     multiply?: boolean,
     power?: boolean,
     remainder?: boolean,
     subtract?: boolean,
-    sin?: boolean,
-    cos?: boolean,
-    tan?: boolean,
-    asin?: boolean,
-    acos?: boolean,
-    atan?: boolean,
-    sinh?: boolean,
-    cosh?: boolean,
-    tanh?: boolean,
-    asinh?: boolean,
-    acosh?: boolean,
-    atanh?: boolean,
     sqrt?: boolean,
-    log?: boolean,
-    ln?: boolean,
-    lg?: boolean,
-    log10?: boolean,
     abs?: boolean,
     ceil?: boolean,
     floor?: boolean,
@@ -94,13 +97,9 @@ export interface OperatorOptions {
     min?: boolean,
     max?: boolean,
     assignment?: boolean,
-    fndef?: boolean,
     array?: boolean,
-    cbrt?: boolean,
-    expm1?: boolean,
-    log1p?: boolean,
+    fndef?: boolean,
     sign?: boolean,
-    log2?: boolean
 }
 
 export interface ParserOptions {
@@ -110,38 +109,14 @@ export interface ParserOptions {
 
 export class Parser {
   unaryOps = {
-    sin: Math.sin,
-    cos: Math.cos,
-    tan: Math.tan,
-    asin: Math.asin,
-    acos: Math.acos,
-    atan: Math.atan,
-    sinh: Math.sinh || sinh,
-    cosh: Math.cosh || cosh,
-    tanh: Math.tanh || tanh,
-    asinh: Math.asinh || asinh,
-    acosh: Math.acosh || acosh,
-    atanh: Math.atanh || atanh,
-    sqrt: Math.sqrt,
-    cbrt: Math.cbrt || cbrt,
-    log: Math.log,
-    log2: Math.log2 || log2,
-    ln: Math.log,
-    lg: Math.log10 || log10,
-    log10: Math.log10 || log10,
-    expm1: Math.expm1 || expm1,
-    log1p: Math.log1p || log1p,
-    abs: Math.abs,
     ceil: Math.ceil,
     floor: Math.floor,
     round: Math.round,
-    trunc: Math.trunc || trunc,
+    trunc: Math.trunc,
     '-': neg,
     '+': Number,
-    exp: Math.exp,
     not,
     length: stringOrArrayLength,
-    '!': factorial,
     sign: Math.sign || sign
   };
   
@@ -152,7 +127,6 @@ export class Parser {
     '/': div,
     '%': mod,
     '^': Math.pow,
-    '||': concat,
     '==': equal,
     '!=': notEqual,
     '>': greaterThan,
@@ -172,26 +146,17 @@ export class Parser {
 
   functions = {
     random,
-    fac: factorial,
     min,
     max,
-    hypot: Math.hypot || hypot,
-    pyt: Math.hypot || hypot,
     pow: Math.pow,
-    atan2: Math.atan2,
     if: condition,
-    gamma,
-    roundTo,
-    map: arrayMapAsync,
-    fold: arrayFold,
-    filter: arrayFilterAsync,
     indexOf: stringOrArrayIndexOf,
     join: arrayJoin,
-    sum
+    sum,
+    concat
   };
 
   consts = {
-    E: Math.E,
     PI: Math.PI,
     true: true,
     false: false
@@ -208,8 +173,13 @@ export class Parser {
     return sharedParser.parse(expr).evaluate(variables);
   }
 
+  
+  getOptionName(op) {
+    return optionNameMap[op] || op;
+  }
+
   isOperatorEnabled(op) {
-    const optionName = getOptionName(op);
+    const optionName = this.getOptionName(op);
     const operators = this.options.operators || {};
 
     return !(optionName in operators) || !!operators[optionName];
@@ -236,31 +206,3 @@ export class Parser {
 
 const sharedParser = new Parser();
 
-const optionNameMap = {
-  '+': 'add',
-  '-': 'subtract',
-  '*': 'multiply',
-  '/': 'divide',
-  '%': 'remainder',
-  '^': 'power',
-  '!': 'factorial',
-  '<': 'comparison',
-  '>': 'comparison',
-  '<=': 'comparison',
-  '>=': 'comparison',
-  '==': 'comparison',
-  '!=': 'comparison',
-  '||': 'concatenate',
-  and: 'logical',
-  or: 'logical',
-  not: 'logical',
-  '?': 'conditional',
-  ':': 'conditional',
-  '=': 'assignment',
-  '[': 'array',
-  '()=': 'fndef'
-};
-
-function getOptionName(op) {
-  return optionNameMap[op] || op;
-}

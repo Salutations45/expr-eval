@@ -223,21 +223,7 @@ describe('Parser', async function () {
         throws(function () { parser.parse('[1, 2, 3+4, 5*6, (7/8)'); }, Error);
       });
 
-      it('should parse operators that look like functions as function calls', async function () {
-        strictEqual(parser.parse('sin 2^3').toString(), '(sin (2 ^ 3))');
-        strictEqual(parser.parse('sin(2)^3').toString(), '((sin 2) ^ 3)');
-        strictEqual(await parser.parse('sin 2^3').evaluate(), Math.sin(Math.pow(2, 3)));
-        strictEqual(await parser.parse('sin(2)^3').evaluate(), Math.pow(Math.sin(2), 3));
-      });
-
       it('should parse named prefix operators as function names at the end of expressions', async function () {
-        strictEqual(parser.parse('sin;').toString(), '(sin)');
-        strictEqual(parser.parse('(sin)').toString(), 'sin');
-        strictEqual(parser.parse('sin; (2)^3').toString(), '(sin;(2 ^ 3))');
-        deepStrictEqual(await parser.parse('f(sin, sqrt)').evaluate({ f: function (a, b) { return [a, b]; } }), [Math.sin, Math.sqrt]);
-        strictEqual(await parser.parse('sin').evaluate(), Math.sin);
-        strictEqual(await parser.parse('cos;').evaluate(), Math.cos);
-        strictEqual(await parser.parse('cos;tan').evaluate(), Math.tan);
         strictEqual(await parser.parse('(floor)').evaluate(), Math.floor);
         strictEqual(await parser.parse('4; ceil').evaluate(), Math.ceil);
       });
@@ -255,7 +241,6 @@ describe('Parser', async function () {
       it('should parse variables that start with operators', async function () {
         strictEqual(parser.parse('org > 5').toString(), '(org > 5)');
         strictEqual(parser.parse('android * 2').toString(), '(android * 2)');
-        strictEqual(parser.parse('single == 1').toString(), '(single == 1)');
       });
 
       it('should parse valid variable names correctly', async function () {
@@ -328,35 +313,16 @@ describe('Parser', async function () {
         throws(function () { parser.parse('123 +\n\n\n\n\n679@'); }, /parse error \[6:4]/);
       });
 
-      it('should allow operators to be disabled', async function () {
-        const parser = new Parser({
-          operators: {
-            add: false,
-            sin: false,
-            remainder: false,
-            divide: false
-          }
-        });
-        throws(function () { parser.parse('+1'); }, /\+/);
-        throws(function () { parser.parse('1 + 2'); }, /\+/);
-        strictEqual(parser.parse('sin(0)').toString(), 'sin(0)');
-        rejects(function () { return parser.evaluate('sin(0)'); }, /sin/);
-        throws(function () { parser.parse('4 % 5'); }, /%/);
-        throws(function () { parser.parse('4 / 5'); }, /\//);
-      });
-
       it('should allow operators to be explicitly enabled', async function () {
         const parser = new Parser({
           operators: {
             add: true,
-            sqrt: true,
             divide: true,
             in: true,
             assignment: true
           }
         });
         strictEqual(await parser.evaluate('+(-1)'), -1);
-        strictEqual(await parser.evaluate('sqrt(16)'), 4);
         strictEqual(await parser.evaluate('4 / 6'), 2 / 3);
         strictEqual(await parser.evaluate('3 in array', { array: [1, 2, 3] }), true);
         strictEqual(await parser.evaluate('x = 4', { x: 2 }), 4);
@@ -388,16 +354,6 @@ describe('Parser', async function () {
       throws(function () { parser.parse('1 <= 2'); }, /</);
     });
 
-    it('should allow concatenate operator to be disabled', async function () {
-      const parser = new Parser({
-        operators: {
-          concatenate: false
-        }
-      });
-
-      throws(function () { parser.parse('"as" || "df"'); }, /\|/);
-    });
-
     it('should allow conditional operator to be disabled', async function () {
       const parser = new Parser({
         operators: {
@@ -416,16 +372,6 @@ describe('Parser', async function () {
       });
 
       throws(function () { parser.parse('2 / 3'); }, /\//);
-    });
-
-    it('should allow factorial operator to be disabled', async function () {
-      const parser = new Parser({
-        operators: {
-          factorial: false
-        }
-      });
-
-      throws(function () { parser.parse('5!'); }, /!/);
     });
 
     it('should allow in operator to be enabled', async function () {

@@ -1,3 +1,4 @@
+import { Value } from "./value";
 
 
 export enum I {
@@ -48,14 +49,14 @@ export class Instruction {
   }
 }
 
-export function unaryInstruction(value) {
+export function unaryInstruction(value: Value) {
   return new Instruction(I.IOP1, value);
 }
 
-export function binaryInstruction(value) {
+export function binaryInstruction(value: Value) {
   return new Instruction(I.IOP2, value);
 }
 
-export function ternaryInstruction(value) {
+export function ternaryInstruction(value: Value) {
   return new Instruction(I.IOP3, value);
 }

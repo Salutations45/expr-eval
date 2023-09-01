@@ -1,6 +1,7 @@
 import { Instruction, I } from './instruction';
+import { Value } from './value';
 
-export default function simplify(tokens, unaryOps, binaryOps, ternaryOps, values) {
+export default function simplify(tokens, unaryOps, binaryOps, ternaryOps, values: Value) {
   const nstack: Instruction[] = [];
   const newexpression: Instruction[] = [];
   let n1, n2, n3;

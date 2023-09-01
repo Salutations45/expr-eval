@@ -91,14 +91,6 @@ describe('Expression', async function () {
       strictEqual(await Parser.evaluate('2^(-4)'), 1 / 16);
     });
 
-    it('\'as\' || \'df\'', async function () {
-      strictEqual(await Parser.evaluate('\'as\' || \'df\''), 'asdf');
-    });
-
-    it('[1, 2] || [3, 4] || [5, 6]', async function () {
-      deepStrictEqual(await Parser.evaluate('[1, 2] || [3, 4] || [5, 6]'), [1, 2, 3, 4, 5, 6]);
-    });
-
     it('should fail with undefined variables', async function () {
       rejects(function () { return Parser.evaluate('x + 1'); }, Error);
     });
@@ -241,10 +233,6 @@ describe('Expression', async function () {
       strictEqual(await Parser.evaluate('fn.max(conf.limits.lower, conf.limits.upper)', { fn: { max: Math.max }, conf: { limits: { lower: 4, upper: 9 } } }), 9);
     });
 
-    it('[1, 2+3, 4*5, 6/7, [8, 9, 10], "1" || "1"]', async function () {
-      strictEqual(JSON.stringify(await Parser.evaluate('[1, 2+3, 4*5, 6/7, [8, 9, 10], "1" || "1"]')), JSON.stringify([1, 5, 20, 6 / 7, [8, 9, 10], '11']));
-    });
-
     it('1 ? 1 : 0', async function () {
       strictEqual(await Parser.evaluate('1 ? 1 : 0'), 1);
     });
@@ -316,15 +304,6 @@ describe('Expression', async function () {
   });
 
   describe('simplify()', async function () {
-    const expr = Parser.parse('x * (y * atan(1))').simplify({ y: 4 });
-    it('(x*3.141592653589793)', async function () {
-      strictEqual(expr.toString(), '(x * 3.141592653589793)');
-    });
-
-    it('6.283185307179586', async function () {
-      strictEqual(expr.simplify({ x: 2 }).toString(), '6.283185307179586');
-    });
-
     it('(x/2) ? y : z', async function () {
       strictEqual(Parser.parse('(x/2) ? y : z').simplify({ x: 4 }).toString(), '(2 ? (y) : (z))');
     });
@@ -355,19 +334,6 @@ describe('Expression', async function () {
   });
 
   describe('variables()', async function () {
-    const expr = Parser.parse('x * (y * atan2(1, 2)) + z.y.x');
-    it('["x", "y", "z.y.x"]', async function () {
-      deepStrictEqual(expr.variables(), ['x', 'y', 'z']);
-    });
-
-    it('["x", "z.y.x"]', async function () {
-      deepStrictEqual(expr.simplify({ y: 4 }).variables(), ['x', 'z']);
-    });
-
-    it('["x"]', async function () {
-      deepStrictEqual(expr.simplify({ y: 4, z: { y: { x: 5 } } }).variables(), ['x']);
-    });
-
     it('a or b ? c + d : e * f', async function () {
       deepStrictEqual(Parser.parse('a or b ? c + d : e * f').variables(), ['a', 'b', 'c', 'd', 'e', 'f']);
     });
@@ -553,10 +519,6 @@ describe('Expression', async function () {
       strictEqual(parser.parse('2 + 3 * foo.bar.baz').toString(), '(2 + (3 * foo.bar.baz))');
     });
 
-    it('sqrt 10/-1', async function () {
-      strictEqual(parser.parse('sqrt 10/-1').toString(), '((sqrt 10) / (-1))');
-    });
-
     it('10*-1', async function () {
       strictEqual(parser.parse('10*-1').toString(), '(10 * (-1))');
     });
@@ -567,10 +529,6 @@ describe('Expression', async function () {
 
     it('10+ +1', async function () {
       strictEqual(parser.parse('10+ +1').toString(), '(10 + (+1))');
-    });
-
-    it('sin 2^-4', async function () {
-      strictEqual(parser.parse('sin 2^-4').toString(), '(sin (2 ^ (-4)))');
     });
 
     it('a ? b : c', async function () {
@@ -591,10 +549,6 @@ describe('Expression', async function () {
 
     it('floor(random() * 10)', async function () {
       strictEqual(parser.parse('floor(random() * 10)').toString(), '(floor (random() * 10))');
-    });
-
-    it('hypot(random(), max(2, x, y))', async function () {
-      strictEqual(parser.parse('hypot(random(), max(2, x, y))').toString(), 'hypot(random(), max(2, x, y))');
     });
 
     it('not 0 or 1 and 2', async function () {
@@ -657,10 +611,6 @@ describe('Expression', async function () {
       strictEqual(parser.parse('x + (2 - 3)').simplify().toString(), '(x + (-1))');
     });
 
-    it('(x - 1)!', async function () {
-      strictEqual(parser.parse('(x - 1)!').toString(), '((x - 1)!)');
-    });
-
     it('a[0]', async function () {
       strictEqual(parser.parse('a[0]').toString(), 'a[0]');
     });
@@ -685,18 +635,6 @@ describe('Expression', async function () {
       strictEqual(f(-1), 0.5);
     });
 
-    it('x || y', async function () {
-      const expr = parser.parse('x || y');
-      const f = expr.toJSFunction('x, y');
-      strictEqual(f(4, 2), '42');
-    });
-
-    it('[4, 3] || [1, 2]', async function () {
-      const expr = parser.parse('x || y');
-      const f = expr.toJSFunction('x, y');
-      deepStrictEqual(f([4, 3], [1, 2]), [4, 3, 1, 2]);
-    });
-
     it('x = x + 1', async function () {
       const expr = parser.parse('x = x + 1');
       const f = expr.toJSFunction('x');
@@ -707,28 +645,6 @@ describe('Expression', async function () {
       const expr = parser.parse('y = 4 ; z = x < 5 ? x * y : x / y');
       const f = expr.toJSFunction('x');
       strictEqual(f(3), 12);
-    });
-
-    it('(sqrt y) + max(3, 1) * (x ? -y : z)', async function () {
-      const expr = parser.parse('(sqrt y) + max(3, 1) * (x ? -y : z)');
-      const f = expr.toJSFunction('x,y,z');
-      strictEqual(f(true, 4, 3), -10);
-      strictEqual(f(false, 4, 3), 11);
-    });
-
-    it('should throw when missing parameter', async function () {
-      const expr = parser.parse('x * (y * atan(1))');
-      let f = expr.toJSFunction(['x', 'y']);
-      strictEqual(f(2, 4), 6.283185307179586);
-
-      f = expr.toJSFunction(['y']);
-      throws(function () { return f(4); }, Error);
-    });
-
-    it('should simplify first', async function () {
-      const expr = parser.parse('x * (y * atan(1))');
-      const f = expr.toJSFunction(['y'], { x: 2 });
-      strictEqual(f(4), 6.283185307179586);
     });
 
     it('2 * x + 1', async function () {
@@ -763,10 +679,6 @@ describe('Expression', async function () {
       strictEqual(parser.parse('2 + 3 * foo.bar.baz').toJSFunction('foo')({ bar: { baz: 5 } }), 17);
     });
 
-    it('sqrt 10/-1', async function () {
-      strictEqual(parser.parse('sqrt 10/-1').toJSFunction()(), -Math.sqrt(10));
-    });
-
     it('10*-1', async function () {
       strictEqual(parser.parse('10*-1').toJSFunction()(), -10);
     });
@@ -777,10 +689,6 @@ describe('Expression', async function () {
 
     it('10+ +1', async function () {
       strictEqual(parser.parse('10+ +1').toJSFunction()(), 11);
-    });
-
-    it('sin 2^-4', async function () {
-      strictEqual(parser.parse('sin 2^-4').toJSFunction('x')(4), Math.sin(1 / 16));
     });
 
     it('a ? b : c', async function () {
@@ -821,10 +729,6 @@ describe('Expression', async function () {
         }
         deepStrictEqual(Object.keys(counts).sort(), ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']);
       });
-    });
-
-    it('hypot(f(), max(2, x, y))', async function () {
-      strictEqual(parser.parse('hypot(f(), max(2, x, y))').toJSFunction('f, x, y')(function () { return 3; }, 4, 1), 5);
     });
 
     it('not x or y and z', async function () {
@@ -868,11 +772,6 @@ describe('Expression', async function () {
       strictEqual(parser.parse('a or fail()').toJSFunction('a')(true), true);
     });
 
-    it('\'as\' || s', async function () {
-      strictEqual(parser.parse('\'as\' || s').toJSFunction('s')('df'), 'asdf');
-      strictEqual(parser.parse('\'as\' || s').toJSFunction('s')(4), 'as4');
-    });
-
     it('\'A\\bB\\tC\\nD\\fE\\r\\\'F\\\\G\'', async function () {
       strictEqual(parser.parse('\'A\\bB\\tC\\nD\\fE\\r\\\'F\\\\G\'').toJSFunction()(), 'A\bB\tC\nD\fE\r\'F\\G');
     });
@@ -883,15 +782,6 @@ describe('Expression', async function () {
 
     it('"\\u2028 and \\u2029"', async function () {
       strictEqual(parser.parse('"\\u2028 and \\u2029 \\u2028\\u2029"').toJSFunction()(), '\u2028 and \u2029 \u2028\u2029');
-    });
-
-    it('(x - 1)!', async function () {
-      strictEqual(parser.parse('(x - 1)!').toJSFunction('x')(1), 1);
-      strictEqual(parser.parse('(x - 1)!').toJSFunction('x')(2), 1);
-      strictEqual(parser.parse('(x - 1)!').toJSFunction('x')(3), 2);
-      strictEqual(parser.parse('(x - 1)!').toJSFunction('x')(4), 6);
-      strictEqual(parser.parse('(x - 1)!').toJSFunction('x')(5), 24);
-      strictEqual(parser.parse('(x - 1)!').toJSFunction('x')(6), 120);
     });
 
     it('(f(x) = g(y) = x * y)(a)(b)', async function () {
@@ -926,9 +816,5 @@ describe('Expression', async function () {
       strictEqual(parser.parse('a["foo"]').toJSFunction('a')({ foo: 42 }), undefined);
     });
 
-    it('[1, 2+3, 4*5, 6/7, [8, 9, 10], "1" || "1"]', async function () {
-      const exp = parser.parse('[1, 2+3, 4*5, 6/7, [8, 9, 10], "1" || "1"]');
-      strictEqual(JSON.stringify(exp.toJSFunction()()), JSON.stringify([1, 5, 20, 6 / 7, [8, 9, 10], '11']));
-    });
   });
 });
