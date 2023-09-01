@@ -1,4 +1,4 @@
-export default function contains(array, obj) {
+export default function contains(array: any[], obj: any) {
   for (let i = 0; i < array.length; i++) {
     if (array[i] === obj) {
       return true;

@@ -245,20 +245,12 @@ export function arrayIndex(array, index) {
   return array[index | 0];
 }
 
-export function max(array) {
-  if (arguments.length === 1 && Array.isArray(array)) {
-    return Math.max.apply(Math, array);
-  } else {
-    return Math.max.apply(Math, arguments);
-  }
+export function max(...args) {
+  return Math.max(...args);
 }
 
-export function min(array) {
-  if (arguments.length === 1 && Array.isArray(array)) {
-    return Math.min.apply(Math, array);
-  } else {
-    return Math.min.apply(Math, arguments);
-  }
+export function min(...args) {
+  return Math.min(...args);
 }
 
 export function arrayMap(f, a) {
@@ -334,7 +326,7 @@ export function arrayJoin(sep, a) {
 }
 
 export function sign(x) {
-  return ((x > 0) - (x < 0)) || +x;
+  return (x>0) ? 1 : ( (x<0) ? -1 : 0 );
 }
 
 const ONE_THIRD = 1 / 3;

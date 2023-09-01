@@ -3,7 +3,7 @@
 'use strict';
 
 const assert = require('assert');
-const Parser = require('../dist/bundle').Parser;
+const Parser = require('../src/index').Parser;
 const spy = require('./lib/spy');
 
 function returnTrue() {

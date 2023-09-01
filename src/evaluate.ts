@@ -1,7 +1,7 @@
-import { INUMBER, IOP1, IOP2, IOP3, IVAR, IVARNAME, IFUNCALL, IFUNDEF, IEXPR, IEXPREVAL, IMEMBER, IENDSTATEMENT, IARRAY } from './instruction';
+import { I } from './instruction';
 
 export default async function evaluate(tokens, expr, values) {
-  const nstack = [];
+  const nstack: any[] = [];
   let n1, n2, n3;
   let f, args, argCount;
 
@@ -14,9 +14,9 @@ export default async function evaluate(tokens, expr, values) {
   for (let i = 0; i < numTokens; i++) {
     const item = tokens[i];
     const type = item.type;
-    if (type === INUMBER || type === IVARNAME) {
+    if (type === I.INUMBER || type === I.IVARNAME) {
       nstack.push(item.value);
-    } else if (type === IOP2) {
+    } else if (type === I.IOP2) {
       n2 = nstack.pop();
       n1 = nstack.pop();
       if (item.value === 'and') {
@@ -30,7 +30,7 @@ export default async function evaluate(tokens, expr, values) {
         f = expr.binaryOps[item.value];
         nstack.push(f(await resolveExpression(n1, values), await resolveExpression(n2, values)));
       }
-    } else if (type === IOP3) {
+    } else if (type === I.IOP3) {
       n3 = nstack.pop();
       n2 = nstack.pop();
       n1 = nstack.pop();
@@ -40,7 +40,7 @@ export default async function evaluate(tokens, expr, values) {
         f = expr.ternaryOps[item.value];
         nstack.push(f(await resolveExpression(n1, values), await resolveExpression(n2, values), await resolveExpression(n3, values)));
       }
-    } else if (type === IVAR) {
+    } else if (type === I.IVAR) {
       if (/^__proto__|prototype|constructor$/.test(item.value)) {
         throw new Error('prototype access detected');
       }
@@ -56,11 +56,11 @@ export default async function evaluate(tokens, expr, values) {
           throw new Error('undefined variable: ' + item.value);
         }
       }
-    } else if (type === IOP1) {
+    } else if (type === I.IOP1) {
       n1 = nstack.pop();
       f = expr.unaryOps[item.value];
       nstack.push(f(resolveExpression(n1, values)));
-    } else if (type === IFUNCALL) {
+    } else if (type === I.IFUNCALL) {
       argCount = item.value;
       args = [];
       while (argCount-- > 0) {
@@ -72,11 +72,11 @@ export default async function evaluate(tokens, expr, values) {
       } else {
         throw new Error(f + ' is not a function');
       }
-    } else if (type === IFUNDEF) {
+    } else if (type === I.IFUNDEF) {
       // Create closure to keep references to arguments and expression
       nstack.push((function () {
         const n2 = nstack.pop();
-        const args = [];
+        const args: any[] = [];
         let argCount = item.value;
         while (argCount-- > 0) {
           args.unshift(nstack.pop());
@@ -97,16 +97,16 @@ export default async function evaluate(tokens, expr, values) {
         values[n1] = f;
         return f;
       })());
-    } else if (type === IEXPR) {
+    } else if (type === I.IEXPR) {
       nstack.push(createExpressionEvaluator(item, expr, values));
-    } else if (type === IEXPREVAL) {
+    } else if (type === I.IEXPREVAL) {
       nstack.push(item);
-    } else if (type === IMEMBER) {
+    } else if (type === I.IMEMBER) {
       n1 = nstack.pop();
       nstack.push(n1[item.value]);
-    } else if (type === IENDSTATEMENT) {
+    } else if (type === I.IENDSTATEMENT) {
       nstack.pop();
-    } else if (type === IARRAY) {
+    } else if (type === I.IARRAY) {
       argCount = item.value;
       args = [];
       while (argCount-- > 0) {
@@ -127,7 +127,7 @@ export default async function evaluate(tokens, expr, values) {
 function createExpressionEvaluator(token, expr, values) {
   if (isExpressionEvaluator(token)) return token;
   return {
-    type: IEXPREVAL,
+    type: I.IEXPREVAL,
     value: async function (scope) {
       return evaluate(token.value, expr, scope);
     }
@@ -135,7 +135,7 @@ function createExpressionEvaluator(token, expr, values) {
 }
 
 function isExpressionEvaluator(n) {
-  return n && n.type === IEXPREVAL;
+  return n && n.type === I.IEXPREVAL;
 }
 
 function resolveExpression(n, values) {

@@ -1,13 +1,13 @@
-import { INUMBER, IOP1, IOP2, IOP3, IVAR, IVARNAME, IFUNCALL, IFUNDEF, IEXPR, IMEMBER, IENDSTATEMENT, IARRAY } from './instruction';
+import { I } from './instruction';
 
-export default function expressionToString(tokens, toJS) {
-  let nstack = [];
+export default function expressionToString(tokens, toJS: boolean) {
+  let nstack: any[] = [];
   let n1, n2, n3;
   let f, args, argCount;
   for (let i = 0; i < tokens.length; i++) {
     const item = tokens[i];
     const type = item.type;
-    if (type === INUMBER) {
+    if (type === I.INUMBER) {
       if (typeof item.value === 'number' && item.value < 0) {
         nstack.push('(' + item.value + ')');
       } else if (Array.isArray(item.value)) {
@@ -15,7 +15,7 @@ export default function expressionToString(tokens, toJS) {
       } else {
         nstack.push(escapeValue(item.value));
       }
-    } else if (type === IOP2) {
+    } else if (type === I.IOP2) {
       n2 = nstack.pop();
       n1 = nstack.pop();
       f = item.value;
@@ -44,7 +44,7 @@ export default function expressionToString(tokens, toJS) {
           nstack.push('(' + n1 + ' ' + f + ' ' + n2 + ')');
         }
       }
-    } else if (type === IOP3) {
+    } else if (type === I.IOP3) {
       n3 = nstack.pop();
       n2 = nstack.pop();
       n1 = nstack.pop();
@@ -54,9 +54,9 @@ export default function expressionToString(tokens, toJS) {
       } else {
         throw new Error('invalid Expression');
       }
-    } else if (type === IVAR || type === IVARNAME) {
+    } else if (type === I.IVAR || type === I.IVARNAME) {
       nstack.push(item.value);
-    } else if (type === IOP1) {
+    } else if (type === I.IOP1) {
       n1 = nstack.pop();
       f = item.value;
       if (f === '-' || f === '+') {
@@ -74,7 +74,7 @@ export default function expressionToString(tokens, toJS) {
       } else {
         nstack.push('(' + f + ' ' + n1 + ')');
       }
-    } else if (type === IFUNCALL) {
+    } else if (type === I.IFUNCALL) {
       argCount = item.value;
       args = [];
       while (argCount-- > 0) {
@@ -82,7 +82,7 @@ export default function expressionToString(tokens, toJS) {
       }
       f = nstack.pop();
       nstack.push(f + '(' + args.join(', ') + ')');
-    } else if (type === IFUNDEF) {
+    } else if (type === I.IFUNDEF) {
       n2 = nstack.pop();
       argCount = item.value;
       args = [];
@@ -95,19 +95,19 @@ export default function expressionToString(tokens, toJS) {
       } else {
         nstack.push('(' + n1 + '(' + args.join(', ') + ') = ' + n2 + ')');
       }
-    } else if (type === IMEMBER) {
+    } else if (type === I.IMEMBER) {
       n1 = nstack.pop();
       nstack.push(n1 + '.' + item.value);
-    } else if (type === IARRAY) {
+    } else if (type === I.IARRAY) {
       argCount = item.value;
       args = [];
       while (argCount-- > 0) {
         args.unshift(nstack.pop());
       }
       nstack.push('[' + args.join(', ') + ']');
-    } else if (type === IEXPR) {
+    } else if (type === I.IEXPR) {
       nstack.push('(' + expressionToString(item.value, toJS) + ')');
-    } else if (type === IENDSTATEMENT) {
+    } else if (type === I.IENDSTATEMENT) {
       // eslint-disable no-empty
     } else {
       throw new Error('invalid Expression');

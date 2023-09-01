@@ -1,22 +1,19 @@
-import { Token, TEOF, TOP, TNUMBER, TSTRING, TPAREN, TBRACKET, TCOMMA, TNAME, TSEMICOLON } from './token';
+
+import { Parser } from './parser';
+import { Token, T } from './token';
 
 export class TokenStream {
-  constructor(parser, expression) {
-    this.pos = 0;
-    this.current = null;
-    this.unaryOps = parser.unaryOps;
-    this.binaryOps = parser.binaryOps;
-    this.ternaryOps = parser.ternaryOps;
-    this.consts = parser.consts;
-    this.expression = expression;
-    this.savedPosition = 0;
-    this.savedCurrent = null;
-    this.options = parser.options;
-    this.parser = parser;
+  pos = 0;
+  current? : Token;
+  savedPosition = 0;
+  savedCurrent? : Token;
+
+  constructor(public parser: Parser, private expression: string) {
+
   }
 
-  newToken(type, value, pos) {
-    return new Token(type, value, pos != null ? pos : this.pos);
+  newToken(type, value, pos = this.pos) {
+    return new Token(type, value, pos);
   }
 
   save() {
@@ -31,7 +28,7 @@ export class TokenStream {
 
   next() {
     if (this.pos >= this.expression.length) {
-      return this.newToken(TEOF, 'EOF');
+      return this.newToken(T.TEOF, 'EOF');
     }
 
     if (this.isWhitespace() || this.isComment()) {
@@ -64,7 +61,7 @@ export class TokenStream {
         this.pos = index + 1;
         if (this.expression.charAt(index - 1) !== '\\') {
           const rawString = this.expression.substring(startPos + 1, index);
-          this.current = this.newToken(TSTRING, this.unescape(rawString), startPos);
+          this.current = this.newToken(T.TSTRING, this.unescape(rawString), startPos);
           r = true;
           break;
         }
@@ -77,7 +74,7 @@ export class TokenStream {
   isParen() {
     const c = this.expression.charAt(this.pos);
     if (c === '(' || c === ')') {
-      this.current = this.newToken(TPAREN, c);
+      this.current = this.newToken(T.TPAREN, c);
       this.pos++;
       return true;
     }
@@ -87,7 +84,7 @@ export class TokenStream {
   isBracket() {
     const c = this.expression.charAt(this.pos);
     if ((c === '[' || c === ']') && this.isOperatorEnabled('[')) {
-      this.current = this.newToken(TBRACKET, c);
+      this.current = this.newToken(T.TBRACKET, c);
       this.pos++;
       return true;
     }
@@ -97,7 +94,7 @@ export class TokenStream {
   isComma() {
     const c = this.expression.charAt(this.pos);
     if (c === ',') {
-      this.current = this.newToken(TCOMMA, ',');
+      this.current = this.newToken(T.TCOMMA, ',');
       this.pos++;
       return true;
     }
@@ -107,7 +104,7 @@ export class TokenStream {
   isSemicolon() {
     const c = this.expression.charAt(this.pos);
     if (c === ';') {
-      this.current = this.newToken(TSEMICOLON, ';');
+      this.current = this.newToken(T.TSEMICOLON, ';');
       this.pos++;
       return true;
     }
@@ -127,8 +124,8 @@ export class TokenStream {
     }
     if (i > startPos) {
       const str = this.expression.substring(startPos, i);
-      if (str in this.consts) {
-        this.current = this.newToken(TNUMBER, this.consts[str]);
+      if (str in this.parser.consts) {
+        this.current = this.newToken(T.TNUMBER, this.parser.consts[str]);
         this.pos += str.length;
         return true;
       }
@@ -149,8 +146,8 @@ export class TokenStream {
     }
     if (i > startPos) {
       const str = this.expression.substring(startPos, i);
-      if (this.isOperatorEnabled(str) && (str in this.binaryOps || str in this.unaryOps || str in this.ternaryOps)) {
-        this.current = this.newToken(TOP, str);
+      if (this.isOperatorEnabled(str) && (str in this.parser.binaryOps || str in this.parser.unaryOps || str in this.parser.ternaryOps)) {
+        this.current = this.newToken(T.TOP, str);
         this.pos += str.length;
         return true;
       }
@@ -179,7 +176,7 @@ export class TokenStream {
     }
     if (hasLetter) {
       const str = this.expression.substring(startPos, i);
-      this.current = this.newToken(TNAME, str);
+      this.current = this.newToken(T.TNAME, str);
       this.pos += str.length;
       return true;
     }
@@ -307,7 +304,7 @@ export class TokenStream {
     }
 
     if (valid) {
-      this.current = this.newToken(TNUMBER, parseInt(this.expression.substring(startPos, pos), radix));
+      this.current = this.newToken(T.TNUMBER, parseInt(this.expression.substring(startPos, pos), radix));
       this.pos = pos;
     }
     return valid;
@@ -364,7 +361,7 @@ export class TokenStream {
     }
 
     if (valid) {
-      this.current = this.newToken(TNUMBER, parseFloat(this.expression.substring(startPos, pos)));
+      this.current = this.newToken(T.TNUMBER, parseFloat(this.expression.substring(startPos, pos)));
       this.pos = pos;
     } else {
       this.pos = resetPos;
@@ -377,43 +374,43 @@ export class TokenStream {
     const c = this.expression.charAt(this.pos);
 
     if (c === '+' || c === '-' || c === '*' || c === '/' || c === '%' || c === '^' || c === '?' || c === ':' || c === '.') {
-      this.current = this.newToken(TOP, c);
+      this.current = this.newToken(T.TOP, c);
     } else if (c === '∙' || c === '•') {
-      this.current = this.newToken(TOP, '*');
+      this.current = this.newToken(T.TOP, '*');
     } else if (c === '>') {
       if (this.expression.charAt(this.pos + 1) === '=') {
-        this.current = this.newToken(TOP, '>=');
+        this.current = this.newToken(T.TOP, '>=');
         this.pos++;
       } else {
-        this.current = this.newToken(TOP, '>');
+        this.current = this.newToken(T.TOP, '>');
       }
     } else if (c === '<') {
       if (this.expression.charAt(this.pos + 1) === '=') {
-        this.current = this.newToken(TOP, '<=');
+        this.current = this.newToken(T.TOP, '<=');
         this.pos++;
       } else {
-        this.current = this.newToken(TOP, '<');
+        this.current = this.newToken(T.TOP, '<');
       }
     } else if (c === '|') {
       if (this.expression.charAt(this.pos + 1) === '|') {
-        this.current = this.newToken(TOP, '||');
+        this.current = this.newToken(T.TOP, '||');
         this.pos++;
       } else {
         return false;
       }
     } else if (c === '=') {
       if (this.expression.charAt(this.pos + 1) === '=') {
-        this.current = this.newToken(TOP, '==');
+        this.current = this.newToken(T.TOP, '==');
         this.pos++;
       } else {
-        this.current = this.newToken(TOP, c);
+        this.current = this.newToken(T.TOP, c);
       }
     } else if (c === '!') {
       if (this.expression.charAt(this.pos + 1) === '=') {
-        this.current = this.newToken(TOP, '!=');
+        this.current = this.newToken(T.TOP, '!=');
         this.pos++;
       } else {
-        this.current = this.newToken(TOP, c);
+        this.current = this.newToken(T.TOP, c);
       }
     } else {
       return false;

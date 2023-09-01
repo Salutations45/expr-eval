@@ -3,20 +3,16 @@ import substitute from './substitute';
 import evaluate from './evaluate';
 import expressionToString from './expression-to-string';
 import getSymbols from './get-symbols';
+import { Parser } from './parser';
 
 export class Expression {
-  constructor(tokens, parser) {
-    this.tokens = tokens;
-    this.parser = parser;
-    this.unaryOps = parser.unaryOps;
-    this.binaryOps = parser.binaryOps;
-    this.ternaryOps = parser.ternaryOps;
-    this.functions = parser.functions;
+  constructor(private tokens, private parser: Parser) {
+    
   }
 
-  simplify(values) {
+  simplify(values?) {
     values = values || {};
-    return new Expression(simplify(this.tokens, this.unaryOps, this.binaryOps, this.ternaryOps, values), this.parser);
+    return new Expression(simplify(this.tokens, this.parser.unaryOps, this.parser.binaryOps, this.parser.ternaryOps, values), this.parser);
   }
 
   substitute(variable, expr) {
@@ -27,8 +23,7 @@ export class Expression {
     return new Expression(substitute(this.tokens, variable, expr), this.parser);
   }
 
-  evaluate(values) {
-    values = values || {};
+  evaluate(values = {}) {
     return evaluate(this.tokens, this, values);
   }
 
@@ -36,28 +31,26 @@ export class Expression {
     return expressionToString(this.tokens, false);
   }
 
-  symbols(options) {
-    options = options || {};
+  symbols(options = {}) {
     const vars = [];
     getSymbols(this.tokens, vars, options);
     return vars;
   }
 
-  variables(options) {
-    options = options || {};
+  variables(options = {}) {
     const vars = [];
     getSymbols(this.tokens, vars, options);
-    const functions = this.functions;
+    const functions = this.parser.functions;
     return vars.filter(function (name) {
       return !(name in functions);
     });
   }
 
-  toJSFunction(param, variables) {
+  toJSFunction(param?, variables?) {
     const expr = this;
     const f = new Function(param, 'with(this.functions) with (this.ternaryOps) with (this.binaryOps) with (this.unaryOps) { return ' + expressionToString(this.simplify(variables).tokens, true) + '; }'); // eslint-disable-line no-new-func
-    return function () {
-      return f.apply(expr, arguments);
+    return function (...args) {
+      return f.apply(expr, args);
     };
   }
 }

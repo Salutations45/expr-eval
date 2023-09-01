@@ -1,14 +1,14 @@
-import { IVAR, IMEMBER, IEXPR, IVARNAME } from './instruction';
+import { I } from './instruction';
 import contains from './contains';
 
 export default function getSymbols(tokens, symbols, options) {
   options = options || {};
   const withMembers = !!options.withMembers;
-  let prevVar = null;
+  let prevVar: string | null = null;
 
   for (let i = 0; i < tokens.length; i++) {
     const item = tokens[i];
-    if (item.type === IVAR || item.type === IVARNAME) {
+    if (item.type === I.IVAR || item.type === I.IVARNAME) {
       if (!withMembers && !contains(symbols, item.value)) {
         symbols.push(item.value);
       } else if (prevVar !== null) {
@@ -19,9 +19,9 @@ export default function getSymbols(tokens, symbols, options) {
       } else {
         prevVar = item.value;
       }
-    } else if (item.type === IMEMBER && withMembers && prevVar !== null) {
+    } else if (item.type === I.IMEMBER && withMembers && prevVar !== null) {
       prevVar += '.' + item.value;
-    } else if (item.type === IEXPR) {
+    } else if (item.type === I.IEXPR) {
       getSymbols(item.value, symbols, options);
     } else if (prevVar !== null) {
       if (!contains(symbols, prevVar)) {

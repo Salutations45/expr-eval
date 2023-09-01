@@ -6,10 +6,6 @@
         "anonymous": "always",
         "named": "never"
       }
-    ],
-    "linebreak-style": [
-      "error",
-      "unix"
     ]
   }
 }

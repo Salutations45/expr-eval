@@ -1,11 +1,10 @@
+
+/*
+
 export type Value = number
     | string
     | ((...args: Value[]) => Value)
     | { [propertyName: string]: Value };
-
-export interface Values {
-    [propertyName: string]: Value;
-}
 
 export interface ParserOptions {
   allowMemberAccess?: boolean;
@@ -78,3 +77,4 @@ export interface Expression {
     variables(options?: { withMembers?: boolean }): string[];
     toJSFunction(params: string | string[], values?: Value): (...args: any[]) => number;
 }
+*/
