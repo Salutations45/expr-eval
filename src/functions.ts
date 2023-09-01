@@ -246,10 +246,16 @@ export function arrayIndex(array, index) {
 }
 
 export function max(...args) {
+  if(Array.isArray(args[0])) {
+    return Math.max(...args[0]);
+  }
   return Math.max(...args);
 }
 
 export function min(...args) {
+  if(Array.isArray(args[0])) {
+    return Math.min(...args[0]);
+  }
   return Math.min(...args);
 }
 

@@ -1,8 +1,8 @@
-import { I } from './instruction';
+import { I, Instruction } from './instruction';
 
-export default function expressionToString(tokens, toJS: boolean) {
-  let nstack: any[] = [];
-  let n1, n2, n3;
+export default function expressionToString(tokens: Instruction[], toJS: boolean) {
+  let nstack: string[] = [];
+  let n1: string, n2: string, n3: string;
   let f, args, argCount;
   for (let i = 0; i < tokens.length; i++) {
     const item = tokens[i];
@@ -16,8 +16,8 @@ export default function expressionToString(tokens, toJS: boolean) {
         nstack.push(escapeValue(item.value));
       }
     } else if (type === I.IOP2) {
-      n2 = nstack.pop();
-      n1 = nstack.pop();
+      n2 = nstack.pop()!;
+      n1 = nstack.pop()!;
       f = item.value;
       if (toJS) {
         if (f === '^') {
@@ -45,9 +45,9 @@ export default function expressionToString(tokens, toJS: boolean) {
         }
       }
     } else if (type === I.IOP3) {
-      n3 = nstack.pop();
-      n2 = nstack.pop();
-      n1 = nstack.pop();
+      n3 = nstack.pop()!;
+      n2 = nstack.pop()!;
+      n1 = nstack.pop()!;
       f = item.value;
       if (f === '?') {
         nstack.push('(' + n1 + ' ? ' + n2 + ' : ' + n3 + ')');
@@ -57,7 +57,7 @@ export default function expressionToString(tokens, toJS: boolean) {
     } else if (type === I.IVAR || type === I.IVARNAME) {
       nstack.push(item.value);
     } else if (type === I.IOP1) {
-      n1 = nstack.pop();
+      n1 = nstack.pop()!;
       f = item.value;
       if (f === '-' || f === '+') {
         nstack.push('(' + f + n1 + ')');
@@ -83,20 +83,20 @@ export default function expressionToString(tokens, toJS: boolean) {
       f = nstack.pop();
       nstack.push(f + '(' + args.join(', ') + ')');
     } else if (type === I.IFUNDEF) {
-      n2 = nstack.pop();
+      n2 = nstack.pop()!;
       argCount = item.value;
       args = [];
       while (argCount-- > 0) {
         args.unshift(nstack.pop());
       }
-      n1 = nstack.pop();
+      n1 = nstack.pop()!;
       if (toJS) {
         nstack.push('(' + n1 + ' = function(' + args.join(', ') + ') { return ' + n2 + ' })');
       } else {
         nstack.push('(' + n1 + '(' + args.join(', ') + ') = ' + n2 + ')');
       }
     } else if (type === I.IMEMBER) {
-      n1 = nstack.pop();
+      n1 = nstack.pop()!;
       nstack.push(n1 + '.' + item.value);
     } else if (type === I.IARRAY) {
       argCount = item.value;

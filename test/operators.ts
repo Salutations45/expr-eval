@@ -2,9 +2,9 @@
 
 'use strict';
 
-const assert = require('assert');
-const Parser = require('../src/index').Parser;
-const spy = require('./lib/spy');
+import assert from 'assert';
+import { Parser } from '../src/index';
+import spy from './lib/spy';
 
 function returnTrue() {
   return true;

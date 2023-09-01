@@ -4,13 +4,14 @@ import evaluate from './evaluate';
 import expressionToString from './expression-to-string';
 import getSymbols from './get-symbols';
 import { Parser } from './parser';
+import { Value } from './value';
 
 export class Expression {
-  constructor(private tokens, private parser: Parser) {
+  constructor(public tokens, public parser: Parser) {
     
   }
 
-  simplify(values?) {
+  simplify(values?: Value) {
     values = values || {};
     return new Expression(simplify(this.tokens, this.parser.unaryOps, this.parser.binaryOps, this.parser.ternaryOps, values), this.parser);
   }
@@ -23,7 +24,7 @@ export class Expression {
     return new Expression(substitute(this.tokens, variable, expr), this.parser);
   }
 
-  evaluate(values = {}) {
+  evaluate(values?) {
     return evaluate(this.tokens, this, values);
   }
 
@@ -48,7 +49,7 @@ export class Expression {
 
   toJSFunction(param?, variables?) {
     const expr = this;
-    const f = new Function(param, 'with(this.functions) with (this.ternaryOps) with (this.binaryOps) with (this.unaryOps) { return ' + expressionToString(this.simplify(variables).tokens, true) + '; }'); // eslint-disable-line no-new-func
+    const f = new Function(param, 'with(this.parser.functions) with (this.parser.ternaryOps) with (this.parser.binaryOps) with (this.parser.unaryOps) { return ' + expressionToString(this.simplify(variables).tokens, true) + '; }'); // eslint-disable-line no-new-func
     return function (...args) {
       return f.apply(expr, args);
     };

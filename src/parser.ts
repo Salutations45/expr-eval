@@ -51,10 +51,9 @@ import {
   log2,
   sum
 } from './functions';
+import { Value } from './value';
 
-export interface ParserOptions {
-  allowMemberAccess?: boolean;
-  operators?: {
+export interface OperatorOptions {
     add?: boolean,
     comparison?: boolean,
     concatenate?: boolean,
@@ -102,7 +101,11 @@ export interface ParserOptions {
     log1p?: boolean,
     sign?: boolean,
     log2?: boolean
-  };
+}
+
+export interface ParserOptions {
+  allowMemberAccess?: boolean;
+  operators?: OperatorOptions;
 }
 
 export class Parser {
@@ -194,14 +197,14 @@ export class Parser {
     false: false
   };
 
-  constructor(private options: ParserOptions = {}) {
+  constructor(public options: ParserOptions = {operators: {}}) {
   }
 
   static parse(expr: string) {
     return sharedParser.parse(expr);
   }
 
-  static evaluate(expr: string, variables?) {
+  static evaluate(expr: string, variables?: Value) {
     return sharedParser.parse(expr).evaluate(variables);
   }
 
@@ -226,7 +229,7 @@ export class Parser {
     return new Expression(instr, this);
   }
 
-  evaluate(expr: string, variables?) {
+  evaluate(expr: string, variables?: Value) {
     return this.parse(expr).evaluate(variables);
   }
 }

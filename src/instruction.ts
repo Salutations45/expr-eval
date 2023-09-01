@@ -20,8 +20,7 @@ export class Instruction {
 
   value: any;
 
-  constructor(private type: I, value?) {
-    this.type = type;
+  constructor(public type: I, value?) {
     this.value = (value !== undefined && value !== null) ? value : 0;
   }
 

@@ -12,7 +12,7 @@ export enum T {
 }
 
 export class Token {
-  constructor(public type, public value, public index) {}
+  constructor(public type: T, public value, public index: number) {}
 
   toString() {
     return this.type + ': ' + this.value;

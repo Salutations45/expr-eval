@@ -12,7 +12,7 @@ export class ParserState {
   savedNextToken?: Token;;
   allowMemberAccess: boolean;
   
-  constructor(private parser, tokenStream: TokenStream, options: {allowMemberAccess?: boolean}) {
+  constructor(public parser, tokenStream: TokenStream, options: {allowMemberAccess?: boolean}) {
     this.tokens = tokenStream;
     this.next();
     this.allowMemberAccess = options.allowMemberAccess !== false;

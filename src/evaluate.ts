@@ -1,6 +1,8 @@
-import { I } from './instruction';
+import { Expression } from './expression';
+import { I, Instruction } from './instruction';
+import { Value } from './value';
 
-export default async function evaluate(tokens, expr, values) {
+export default async function evaluate(tokens: Instruction[], expr: Expression, values = {}) {
   const nstack: any[] = [];
   let n1, n2, n3;
   let f, args, argCount;
@@ -24,10 +26,10 @@ export default async function evaluate(tokens, expr, values) {
       } else if (item.value === 'or') {
         nstack.push(n1 ? true : !!await evaluate(n2, expr, values));
       } else if (item.value === '=') {
-        f = expr.binaryOps[item.value];
+        f = expr.parser.binaryOps[item.value];
         nstack.push(f(n1, await evaluate(n2, expr, values), values));
       } else {
-        f = expr.binaryOps[item.value];
+        f = expr.parser.binaryOps[item.value];
         nstack.push(f(await resolveExpression(n1, values), await resolveExpression(n2, values)));
       }
     } else if (type === I.IOP3) {
@@ -37,17 +39,17 @@ export default async function evaluate(tokens, expr, values) {
       if (item.value === '?') {
         nstack.push(await evaluate(n1 ? n2 : n3, expr, values));
       } else {
-        f = expr.ternaryOps[item.value];
+        f = expr.parser.ternaryOps[item.value];
         nstack.push(f(await resolveExpression(n1, values), await resolveExpression(n2, values), await resolveExpression(n3, values)));
       }
     } else if (type === I.IVAR) {
       if (/^__proto__|prototype|constructor$/.test(item.value)) {
         throw new Error('prototype access detected');
       }
-      if (item.value in expr.functions) {
-        nstack.push(expr.functions[item.value]);
-      } else if (item.value in expr.unaryOps && expr.parser.isOperatorEnabled(item.value)) {
-        nstack.push(expr.unaryOps[item.value]);
+      if (item.value in expr.parser.functions) {
+        nstack.push(expr.parser.functions[item.value]);
+      } else if (item.value in expr.parser.unaryOps && expr.parser.isOperatorEnabled(item.value)) {
+        nstack.push(expr.parser.unaryOps[item.value]);
       } else {
         const v = values[item.value];
         if (v !== undefined) {
@@ -58,7 +60,7 @@ export default async function evaluate(tokens, expr, values) {
       }
     } else if (type === I.IOP1) {
       n1 = nstack.pop();
-      f = expr.unaryOps[item.value];
+      f = expr.parser.unaryOps[item.value];
       nstack.push(f(resolveExpression(n1, values)));
     } else if (type === I.IFUNCALL) {
       argCount = item.value;
@@ -138,6 +140,6 @@ function isExpressionEvaluator(n) {
   return n && n.type === I.IEXPREVAL;
 }
 
-function resolveExpression(n, values) {
+function resolveExpression(n, values: Value) {
   return isExpressionEvaluator(n) ? n.value(values) : n;
 }

@@ -12,7 +12,7 @@ export class TokenStream {
 
   }
 
-  newToken(type, value, pos = this.pos) {
+  newToken(type: T, value, pos = this.pos) {
     return new Token(type, value, pos);
   }
 

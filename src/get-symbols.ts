@@ -1,7 +1,11 @@
-import { I } from './instruction';
+import { I, Instruction } from './instruction';
 import contains from './contains';
 
-export default function getSymbols(tokens, symbols, options) {
+interface getSymbolsOption {
+  withMembers?: boolean
+}
+
+export default function getSymbols(tokens: Instruction[], symbols, options: getSymbolsOption = {}) {
   options = options || {};
   const withMembers = !!options.withMembers;
   let prevVar: string | null = null;

@@ -21,7 +21,7 @@
     "typescript": "^5.2.2"
   },
   "scripts": {
-    "test": "npm run build && mocha",
+    "test": "npm run build && ts-mocha test/*.ts",
     "coverage": "npm run build && nyc --reporter=lcov --reporter=text-summary mocha",
     "format": "eslint index.mjs src test --fix",
     "lint": "eslint src test",
