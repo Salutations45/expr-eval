@@ -2,7 +2,7 @@
 
 'use strict';
 
-import { strictEqual, ok, deepStrictEqual, rejects } from 'assert';
+import { strictEqual, ok, rejects } from 'assert';
 import { Parser } from '../src/index';
 
 describe('Functions', async function () {
@@ -62,28 +62,6 @@ describe('Functions', async function () {
     it('should return x^y', async function () {
       const parser = new Parser();
       strictEqual(await parser.evaluate('pow(3,2)'), 9);
-    });
-  });
-
-  describe('if(p, t, f)', async function () {
-    it('if(1, 1, 0)', async function () {
-      strictEqual(await Parser.evaluate('if(1, 1, 0)'), 1);
-    });
-
-    it('if(0, 1, 0)', async function () {
-      strictEqual(await Parser.evaluate('if(0, 1, 0)'), 0);
-    });
-
-    it('if(1==1 or 2==1, 39, 0)', async function () {
-      strictEqual(await Parser.evaluate('if(1==1 or 2==1, 39, 0)'), 39);
-    });
-
-    it('if(1==1 or 1==2, -4 + 8, 0)', async function () {
-      strictEqual(await Parser.evaluate('if(1==1 or 1==2, -4 + 8, 0)'), 4);
-    });
-
-    it('if(3 && 6, if(45 > 5 * 11, 3 * 3, 2.4), 0)', async function () {
-      strictEqual(await Parser.evaluate('if(3 and 6, if(45 > 5 * 11, 3 * 3, 2.4), 0)'), 2.4);
     });
   });
 

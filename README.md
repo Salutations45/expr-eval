@@ -1,9 +1,7 @@
-JavaScript Expression Evaluator
+Typescript Expression Evaluator
 ===============================
 
 [![npm](https://img.shields.io/npm/v/expr-eval.svg?maxAge=3600)](https://www.npmjs.com/package/expr-eval)
-[![CDNJS version](https://img.shields.io/cdnjs/v/expr-eval.svg?maxAge=3600)](https://cdnjs.com/libraries/expr-eval)
-[![Build Status](https://travis-ci.org/silentmatt/expr-eval.svg?branch=master)](https://travis-ci.org/silentmatt/expr-eval)
 
 Description
 -------------------------------------
@@ -12,9 +10,7 @@ Parses and evaluates mathematical expressions. It's a safer and more
 math-oriented alternative to using JavaScript’s `eval` function for mathematical
 expressions.
 
-It has built-in support for common math operators and functions. Additionally,
-you can add your own JavaScript functions. Expressions can be evaluated
-directly, or compiled into native JavaScript functions.
+It has built-in support for the most common math operators and functions. Additionally, you can add your own JavaScript functions. Expressions can be evaluated directly, or compiled into native JavaScript functions.
 
 Installation
 -------------------------------------
@@ -36,26 +32,34 @@ Basic Usage
 Documentation
 -------------------------------------
 
-* [Parser](#parser)
-    - [Parser()](#parser-1)
-    - [parse(expression: string)](#parseexpression-string)
-    - [Parser.parse(expression: string)](#parserparseexpression-string)
-    - [Parser.evaluate(expression: string, variables?: object)](#parserevaluateexpression-string-variables-object)
-* [Expression](#expression)
-    - [evaluate(variables?: object)](#evaluatevariables-object)
-    - [substitute(variable: string, expression: Expression | string | number)](#substitutevariable-string-expression-expression--string--number)
-    - [simplify(variables: object)](#simplifyvariables-object)
-    - [variables(options?: object)](#variablesoptions-object)
-    - [symbols(options?: object)](#symbolsoptions-object)
-    - [toString()](#tostring)
-    - [toJSFunction(parameters: array | string, variables?: object)](#tojsfunctionparameters-array--string-variables-object)
-* [Expression Syntax](#expression-syntax)
-    - [Operator Precedence](#operator-precedence)
-    - [Unary operators](#unary-operators)
-    - [Array literals](#array-literals)
-    - [Pre-defined functions](#pre-defined-functions)
-    - [Custom JavaScript functions](#custom-javascript-functions)
-    - [Constants](#constants)
+- [Typescript Expression Evaluator](#typescript-expression-evaluator)
+  - [Description](#description)
+  - [Installation](#installation)
+  - [Basic Usage](#basic-usage)
+  - [Documentation](#documentation)
+    - [Parser](#parser)
+      - [Parser()](#parser-1)
+      - [parse(expression: string)](#parseexpression-string)
+      - [Parser.parse(expression: string)](#parserparseexpression-string)
+      - [Parser.evaluate(expression: string, variables?: object)](#parserevaluateexpression-string-variables-object)
+    - [Expression](#expression)
+      - [evaluate(variables?: object)](#evaluatevariables-object)
+      - [substitute(variable: string, expression: Expression | string | number)](#substitutevariable-string-expression-expression--string--number)
+      - [simplify(variables: object)](#simplifyvariables-object)
+      - [variables(options?: object)](#variablesoptions-object)
+      - [symbols(options?: object)](#symbolsoptions-object)
+      - [toString()](#tostring)
+      - [toJSFunction(parameters: array | string, variables?: object)](#tojsfunctionparameters-array--string-variables-object)
+    - [Expression Syntax](#expression-syntax)
+      - [Operator Precedence](#operator-precedence)
+      - [Unary operators](#unary-operators)
+      - [Pre-defined functions](#pre-defined-functions)
+      - [Array literals](#array-literals)
+      - [Function definitions](#function-definitions)
+      - [Custom JavaScript functions](#custom-javascript-functions)
+      - [Constants](#constants)
+  - [Differences from silentmatt/expr-eval](#differences-from-silentmattexpr-eval)
+    - [Tests](#tests)
 
 ### Parser ###
 
@@ -74,10 +78,9 @@ For example, the following will create a `Parser` that does not allow comparison
       operators: {
         // These default to true, but are included to be explicit
         add: true,
-        concatenate: true,
+        concat: true,
         conditional: true,
         divide: true,
-        factorial: true,
         multiply: true,
         power: true,
         remainder: true,
@@ -224,7 +227,6 @@ Operator                 | Associativity | Description
 :----------------------- | :------------ | :----------
 (...)                    | None          | Grouping
 f(), x.y, a[i]           | Left          | Function call, property access, array indexing
-!                        | Left          | Factorial
 ^                        | Right         | Exponentiation
 +, -, not, sqrt, etc.    | Right         | Unary prefix operators (see below for the full list)
 \*, /, %                 | Left          | Multiplication, division, remainder
@@ -250,8 +252,8 @@ The parser has several built-in "functions" that are actually unary operators.
 The primary difference between these and functions are that they can only accept
 exactly one argument, and parentheses are optional. With parentheses, they have
 the same precedence as function calls, but without parentheses, they keep their
-normal precedence (just below `^`). For example, `sin(x)^2` is equivalent to
-`(sin x)^2`, and `sin x^2` is equivalent to `sin(x^2)`.
+normal precedence (just below `^`). For example, `round(x)^2` is equivalent to
+`(round x)^2`, and `round x^2` is equivalent to `round(x^2)`.
 
 The unary `+` and `-` operators are an exception, and always have their normal
 precedence.
@@ -262,33 +264,12 @@ Operator | Description
 +x       | Unary plus. This converts it's operand to a number, but has no other effect.
 x!       | Factorial (x * (x-1) * (x-2) * … * 2 * 1). gamma(x + 1) for non-integers.
 abs x    | Absolute value (magnitude) of x
-acos x   | Arc cosine of x (in radians)
-acosh x  | Hyperbolic arc cosine of x (in radians)
-asin x   | Arc sine of x (in radians)
-asinh x  | Hyperbolic arc sine of x (in radians)
-atan x   | Arc tangent of x (in radians)
-atanh x  | Hyperbolic arc tangent of x (in radians)
-cbrt x   | Cube root of x
 ceil x   | Ceiling of x — the smallest integer that’s >= x
-cos x    | Cosine of x (x is in radians)
-cosh x   | Hyperbolic cosine of x (x is in radians)
-exp x    | e^x (exponential/antilogarithm function with base e)
-expm1 x  | e^x - 1
 floor x  | Floor of x — the largest integer that’s <= x
 length x | String or array length of x
-ln x     | Natural logarithm of x
-log x    | Natural logarithm of x (synonym for ln, not base-10)
-log10 x  | Base-10 logarithm of x
-log2 x   | Base-2 logarithm of x
-log1p x  | Natural logarithm of (1 + x)
 not x    | Logical NOT operator
 round x  | X, rounded to the nearest integer, using "grade-school rounding"
 sign x   | Sign of x (-1, 0, or 1 for negative, zero, or positive respectively)
-sin x    | Sine of x (x is in radians)
-sinh x   | Hyperbolic sine of x (x is in radians)
-sqrt x   | Square root of x. Result is NaN (Not a Number) if x is negative.
-tan x    | Tangent of x (x is in radians)
-tanh x   | Hyperbolic tangent of x (x is in radians)
 trunc x  | Integral part of a X, looks like floor(x) unless for negative number
 
 #### Pre-defined functions
@@ -300,20 +281,12 @@ These are not evaluated by simplify.
 Function      | Description
 :------------ | :----------
 random(n)     | Get a random number in the range [0, n). If n is zero, or not provided, it defaults to 1.
-fac(n)        | n! (factorial of n: "n * (n-1) * (n-2) * … * 2 * 1") Deprecated. Use the ! operator instead.
 min(a,b,…)    | Get the smallest (minimum) number in the list.
 max(a,b,…)    | Get the largest (maximum) number in the list.
-hypot(a,b)    | Hypotenuse, i.e. the square root of the sum of squares of its arguments.
-pyt(a, b)     | Alias for hypot.
 pow(x, y)     | Equivalent to x^y. For consistency with JavaScript's Math object.
-atan2(y, x)   | Arc tangent of x/y. i.e. the angle between (0, 0) and (x, y) in radians.
 roundTo(x, n) | Rounds x to n places after the decimal point.
-map(f, a)     | Array map: Pass each element of `a` the function `f`, and return an array of the results.
-fold(f, y, a) | Array fold: Fold/reduce array `a` into a single value, `y` by setting `y = f(y, x, index)` for each element `x` of the array.
-filter(f, a)  | Array filter: Return an array containing only the values from `a` where `f(x, index)` is `true`.
 indexOf(x, a) | Return the first index of string or array `a` matching the value `x`, or `-1` if not found.
 join(sep, a)  | Concatenate the elements of `a`, separated by `sep`.
-if(c, a, b)   | Function form of c ? a : b. Note: This always evaluates both `a` and `b`, regardless of whether `c` is `true` or not. Use `c ? a : b` instead if there are side effects, or if evaluating the branches could be expensive.
 
 #### Array literals
 
@@ -350,12 +323,11 @@ If you need additional functions that aren't supported out of the box, you can e
 ```
 #### Constants
 
-The parser also includes a number of pre-defined constants that can be used in expressions. These are shown
+The parser also includes pre-defined constants that can be used in expressions. These are shown
 in the table below:
 
 Constant     | Description
 :----------- | :----------
-E            | The value of `Math.E` from your JavaScript runtime
 PI           | The value of `Math.PI` from your JavaScript runtime
 true         | Logical `true` value
 false        | Logical `false` value
@@ -373,6 +345,11 @@ To disable the pre-defined constants, you can replace or delete `parser.consts`:
     const parser = new Parser();
     parser.consts = {};
 ```
+
+## Differences from silentmatt/expr-eval
+- Converted to typescript
+- Support for async custom functions, making evalutation entirely async (Promise based)
+- Removed some math related functions: Custom functions are available if necessary
 
 ### Tests ###
 

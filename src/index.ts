@@ -13,12 +13,12 @@ import { Expression } from './expression';
 import { Parser } from './parser';
 
 export {
-  Expression,
-  Parser
+	Expression,
+	Parser
 };
 
 // Backwards compatibility
 export default {
-  Parser,
-  Expression
+	Parser,
+	Expression
 };
