@@ -3,6 +3,7 @@ import { Instruction, I, ternaryInstruction, binaryInstruction, unaryInstruction
 import contains from './contains';
 import { TokenStream } from './token-stream';
 import { Value } from './value';
+import { Parser } from './parser';
 
 export class ParserState {
 
@@ -13,7 +14,7 @@ export class ParserState {
 	savedNextToken?: Token;
 	allowMemberAccess: boolean;
 	
-	constructor(public parser, tokenStream: TokenStream, options: {allowMemberAccess?: boolean}) {
+	constructor(public parser: Parser, tokenStream: TokenStream, options: {allowMemberAccess?: boolean}) {
 		this.tokens = tokenStream;
 		this.next();
 		this.allowMemberAccess = options.allowMemberAccess !== false;
@@ -66,7 +67,7 @@ export class ParserState {
 	parseAtom(instr: Instruction[]) {
 		const unaryOps = this.tokens.parser.unaryOps;
 
-		function isPrefixOperator(token) {
+		function isPrefixOperator(token: Token) {
 			return token.value in unaryOps;
 		}
 
@@ -334,5 +335,5 @@ export class ParserState {
 }
 
 const COMPARISON_OPERATORS = ['==', '!=', '<', '<=', '>=', '>', 'in'];
-const ADD_SUB_OPERATORS = ['+', '-', '||'];
+const ADD_SUB_OPERATORS = ['+', '-'];
 const TERM_OPERATORS = ['*', '/', '%'];

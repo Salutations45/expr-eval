@@ -26,8 +26,6 @@ export default function expressionToString(tokens: Instruction[], toJS: boolean)
 					nstack.push('(!!' + n1 + ' && !!' + n2 + ')');
 				} else if (f === 'or') {
 					nstack.push('(!!' + n1 + ' || !!' + n2 + ')');
-				} else if (f === '||') {
-					nstack.push('(function(a,b){ return Array.isArray(a) && Array.isArray(b) ? a.concat(b) : String(a) + String(b); }((' + n1 + '),(' + n2 + ')))');
 				} else if (f === '==') {
 					nstack.push('(' + n1 + ' === ' + n2 + ')');
 				} else if (f === '!=') {
@@ -64,13 +62,9 @@ export default function expressionToString(tokens: Instruction[], toJS: boolean)
 			} else if (toJS) {
 				if (f === 'not') {
 					nstack.push('(' + '!' + n1 + ')');
-				} else if (f === '!') {
-					nstack.push('fac(' + n1 + ')');
 				} else {
 					nstack.push(f + '(' + n1 + ')');
 				}
-			} else if (f === '!') {
-				nstack.push('(' + n1 + '!)');
 			} else {
 				nstack.push('(' + f + ' ' + n1 + ')');
 			}
@@ -105,7 +99,7 @@ export default function expressionToString(tokens: Instruction[], toJS: boolean)
 				args.unshift(nstack.pop());
 			}
 			nstack.push('[' + args.join(', ') + ']');
-		} else if (type === IEXPR) {
+		} else if (item.type === IEXPR) {
 			nstack.push('(' + expressionToString(item.value, toJS) + ')');
 		} else if (type === I.IENDSTATEMENT) {
 			// eslint-disable no-empty

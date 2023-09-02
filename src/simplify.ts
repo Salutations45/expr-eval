@@ -1,4 +1,4 @@
-import { Instruction, I, SimpleInstruction, IEXPR, ExpressionInstruction } from './instruction';
+import { Instruction, I, SimpleInstruction, ExpressionInstruction, IEXPR } from './instruction';
 import { Value } from './value';
 
 export default function simplify(tokens, unaryOps, binaryOps, ternaryOps, values: Value) {

@@ -598,10 +598,6 @@ describe('Expression', async function () {
 			strictEqual(Parser.parse('["a", ["b", ["c"]], true, 1 + 2 + 3]').toString(), '["a", ["b", ["c"]], true, ((1 + 2) + 3)]');
 		});
 
-		it('\'as\' || \'df\'', async function () {
-			strictEqual(parser.parse('\'as\' || \'df\'').toString(), '("as" || "df")');
-		});
-
 		it('\'A\\bB\\tC\\nD\\fE\\r\\\'F\\\\G\'', async function () {
 			strictEqual(parser.parse('\'A\\bB\\tC\\nD\\fE\\r\\\'F\\\\G\'').toString(), '"A\\bB\\tC\\nD\\fE\\r\'F\\\\G"');
 		});

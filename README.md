@@ -59,7 +59,7 @@ Documentation
       - [Custom JavaScript functions](#custom-javascript-functions)
       - [Constants](#constants)
   - [Differences from silentmatt/expr-eval](#differences-from-silentmattexpr-eval)
-    - [Tests](#tests)
+  - [Tests](#tests)
 
 ### Parser ###
 
@@ -230,7 +230,7 @@ f(), x.y, a[i]           | Left          | Function call, property access, array
 ^                        | Right         | Exponentiation
 +, -, not, sqrt, etc.    | Right         | Unary prefix operators (see below for the full list)
 \*, /, %                 | Left          | Multiplication, division, remainder
-+, -, \|\|               | Left          | Addition, subtraction, array/list concatenation
++, -                     | Left          | Addition, subtraction
 ==, !=, >=, <=, >, <, in | Left          | Equals, not equals, etc. "in" means "is the left operand included in the right array operand?"
 and                      | Left          | Logical AND
 or                       | Left          | Logical OR
@@ -262,7 +262,6 @@ Operator | Description
 :------- | :----------
 -x       | Negation
 +x       | Unary plus. This converts it's operand to a number, but has no other effect.
-x!       | Factorial (x * (x-1) * (x-2) * … * 2 * 1). gamma(x + 1) for non-integers.
 abs x    | Absolute value (magnitude) of x
 ceil x   | Ceiling of x — the smallest integer that’s >= x
 floor x  | Floor of x — the largest integer that’s <= x
@@ -292,7 +291,7 @@ join(sep, a)  | Concatenate the elements of `a`, separated by `sep`.
 
 Arrays can be created by including the elements inside square `[]` brackets, separated by commas. For example:
 
-    [ 1, 2, 3, 2+2, 10/2, 3! ]
+    [ 1, 2, 3, 2+2, 10/2 ]
 
 #### Function definitions
 
@@ -351,7 +350,7 @@ To disable the pre-defined constants, you can replace or delete `parser.consts`:
 - Support for async custom functions, making evalutation entirely async (Promise based)
 - Removed some math related functions: Custom functions are available if necessary
 
-### Tests ###
+## Tests
 
 1. `cd` to the project directory
 2. Install development dependencies: `npm install`

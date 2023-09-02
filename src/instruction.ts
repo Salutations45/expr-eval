@@ -12,23 +12,25 @@ export enum I {
 	IENDSTATEMENT = 'IENDSTATEMENT',
 	IARRAY = 'IARRAY',
 }
+
 export const IEXPR = 'IEXPR';
 export const IEXPREVAL = 'IEXPREVAL';
 
 export type Instruction = SimpleInstruction | ExpressionInstruction | ExpressionEvaluator;
 
 export class ExpressionEvaluator {
-	readonly type = 'IEXPREVAL';
+	readonly type = IEXPREVAL;
 	constructor(public value: (scope: any)=>Promise<unknown>) {}
 }
 
 export class ExpressionInstruction {
-	readonly type = 'IEXPR';
+	readonly type = IEXPR;
 	constructor(public value: Instruction[]) {}
 }
 
 export class SimpleInstruction {
-	constructor(public readonly type: I, public value: string | number = 0) {}
+	constructor(public readonly type: I, public value: string | number = 0) {
+	}
 
 	toString() {
 		switch (this.type) {

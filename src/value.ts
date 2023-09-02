@@ -1,8 +1,6 @@
 
-export type Value = number
-	| string
+export type Value = number | string | boolean
 	| ((...args: Value[]) => Value)
-	| boolean
 	| ValueFunction
 	| Value[]
 	| { [propertyName: string]: Value };

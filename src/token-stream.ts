@@ -389,13 +389,6 @@ export class TokenStream {
 			} else {
 				this.current = this.newToken(T.TOP, '<');
 			}
-		} else if (c === '|') {
-			if (this.expression.charAt(this.pos + 1) === '|') {
-				this.current = this.newToken(T.TOP, '||');
-				this.pos++;
-			} else {
-				return false;
-			}
 		} else if (c === '=') {
 			if (this.expression.charAt(this.pos + 1) === '=') {
 				this.current = this.newToken(T.TOP, '==');
@@ -408,7 +401,7 @@ export class TokenStream {
 				this.current = this.newToken(T.TOP, '!=');
 				this.pos++;
 			} else {
-				this.current = this.newToken(T.TOP, c);
+				return false;
 			}
 		} else {
 			return false;
@@ -429,7 +422,7 @@ export class TokenStream {
 
 	getCoordinates() {
 		let line = 0;
-		let column;
+		let column: number;
 		let newline = -1;
 		do {
 			line++;
@@ -443,7 +436,7 @@ export class TokenStream {
 		};
 	}
 
-	parseError(msg) {
+	parseError(msg: string) {
 		const coords = this.getCoordinates();
 		throw new Error('parse error [' + coords.line + ':' + coords.column + ']: ' + msg);
 	}
