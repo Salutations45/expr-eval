@@ -58,7 +58,7 @@ Documentation
       - [Function definitions](#function-definitions)
       - [Custom JavaScript functions](#custom-javascript-functions)
       - [Constants](#constants)
-  - [Differences from silentmatt/expr-eval](#differences-from-silentmattexpr-eval)
+  - [Main differences from silentmatt/expr-eval](#main-differences-from-silentmattexpr-eval)
   - [Tests](#tests)
 
 ### Parser ###
@@ -345,10 +345,10 @@ To disable the pre-defined constants, you can replace or delete `parser.consts`:
     parser.consts = {};
 ```
 
-## Differences from silentmatt/expr-eval
+## Main differences from silentmatt/expr-eval
 - Converted to typescript
 - Support for async custom functions, making evalutation entirely async (Promise based)
-- Removed some math related functions: Custom functions are available if necessary
+- Removed some math related functions and related operators (Custom functions are available if necessary)
 
 ## Tests
 

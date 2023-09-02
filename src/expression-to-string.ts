@@ -1,6 +1,6 @@
-import { I, IEXPR, Instruction } from './instruction';
+import { I, Instr } from './instruction';
 
-export default function expressionToString(tokens: Instruction[], toJS: boolean) {
+export default function expressionToString(tokens: Instr[], toJS: boolean) {
 	let nstack: string[] = [];
 	let n1: string, n2: string, n3: string;
 	let f, args, argCount;
@@ -99,7 +99,7 @@ export default function expressionToString(tokens: Instruction[], toJS: boolean)
 				args.unshift(nstack.pop());
 			}
 			nstack.push('[' + args.join(', ') + ']');
-		} else if (item.type === IEXPR) {
+		} else if (item.type === I.IEXPR) {
 			nstack.push('(' + expressionToString(item.value, toJS) + ')');
 		} else if (type === I.IENDSTATEMENT) {
 			// eslint-disable no-empty
@@ -117,7 +117,7 @@ export default function expressionToString(tokens: Instruction[], toJS: boolean)
 	return String(nstack[0]);
 }
 
-function escapeValue(v) {
+function escapeValue<T>(v: T) {
 	if (typeof v === 'string') {
 		return JSON.stringify(v).replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 	}

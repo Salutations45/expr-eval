@@ -1,8 +1,8 @@
 import { Expression } from './expression';
-import { ExpressionEvaluator, I, IEXPR, IEXPREVAL, Instruction } from './instruction';
+import { I, Instr, Instruction } from './instruction';
 import { Value } from './value';
 
-export default async function evaluate(tokens: Instruction[], expr: Expression, values = {}) {
+export default async function evaluate(tokens: Instr[], expr: Expression, values = {}) {
 	const nstack: unknown[] = [];
 	let n1, n2, n3;
 	let f, args, argCount;
@@ -79,7 +79,7 @@ export default async function evaluate(tokens: Instruction[], expr: Expression, 
 			nstack.push((function () {
 				const n2 = nstack.pop();
 				const args: any[] = [];
-				let argCount = item.value as number;
+				let argCount = Number(item.value);
 				while (argCount-- > 0) {
 					args.unshift(nstack.pop());
 				}
@@ -89,7 +89,7 @@ export default async function evaluate(tokens: Instruction[], expr: Expression, 
 					for (let i = 0, len = args.length; i < len; i++) {
 						scope[args[i]] = argsArray[i];
 					}
-					return evaluate(n2 as Instruction[], expr, scope);
+					return evaluate(n2 as Instr[], expr, scope);
 				};
 				// f.name = n1
 				Object.defineProperty(f, 'name', {
@@ -99,9 +99,9 @@ export default async function evaluate(tokens: Instruction[], expr: Expression, 
 				values[n1 as string] = f;
 				return f;
 			})());
-		} else if (type === IEXPR) {
+		} else if (type === I.IEXPR) {
 			nstack.push(createExpressionEvaluator(item, expr));
-		} else if (type === IEXPREVAL) {
+		} else if (type === I.IEXPREVAL) {
 			nstack.push(item);
 		} else if (type === I.IMEMBER) {
 			n1 = nstack.pop();
@@ -129,13 +129,13 @@ export default async function evaluate(tokens: Instruction[], expr: Expression, 
 function createExpressionEvaluator(token, expr) {
 	if (isExpressionEvaluator(token)) return token;
 
-	return new ExpressionEvaluator(async function (scope) {
+	return new Instruction(I.IEXPREVAL, async function (scope) {
 		return evaluate(token.value, expr, scope);
 	});
 }
 
 function isExpressionEvaluator(n) {
-	return n && n.type === IEXPREVAL;
+	return n && n.type === I.IEXPREVAL;
 }
 
 function resolveExpression(n, values: Value) {

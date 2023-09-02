@@ -11,26 +11,29 @@ export enum I {
 	IMEMBER = 'IMEMBER',
 	IENDSTATEMENT = 'IENDSTATEMENT',
 	IARRAY = 'IARRAY',
+	IEXPR = 'IEXPR',
+	IEXPREVAL = 'IEXPREVAL',
 }
 
-export const IEXPR = 'IEXPR';
-export const IEXPREVAL = 'IEXPREVAL';
+export type Instr = SimpleInstruction | ExpressionEvaluator | ExpressionInstruction;
 
-export type Instruction = SimpleInstruction | ExpressionInstruction | ExpressionEvaluator;
-
-export class ExpressionEvaluator {
-	readonly type = IEXPREVAL;
-	constructor(public value: (scope: any)=>Promise<unknown>) {}
+interface SimpleInstruction {
+	readonly type: Exclude<I, (I.IEXPR|I.IEXPREVAL)>;
+	value: string;
 }
 
-export class ExpressionInstruction {
-	readonly type = IEXPR;
-	constructor(public value: Instruction[]) {}
+interface ExpressionEvaluator {
+	readonly type: I.IEXPREVAL;
+	value: (scope: any)=>Promise<unknown>;
 }
 
-export class SimpleInstruction {
-	constructor(public readonly type: I, public value: string | number = 0) {
-	}
+interface ExpressionInstruction {
+	readonly type: I.IEXPR;
+	value: Instr[];
+}
+
+export class Instruction<T extends I> {
+	constructor(public readonly type: T, public readonly value: any = 0) {}
 
 	toString() {
 		switch (this.type) {
@@ -57,13 +60,13 @@ export class SimpleInstruction {
 }
 
 export function unaryInstruction(value: string | number) {
-	return new SimpleInstruction(I.IOP1, value);
+	return new Instruction(I.IOP1, value);
 }
 
 export function binaryInstruction(value: string | number) {
-	return new SimpleInstruction(I.IOP2, value);
+	return new Instruction(I.IOP2, value);
 }
 
 export function ternaryInstruction(value: string | number) {
-	return new SimpleInstruction(I.IOP3, value);
+	return new Instruction(I.IOP3, value);
 }

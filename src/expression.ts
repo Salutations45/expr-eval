@@ -5,10 +5,10 @@ import expressionToString from './expression-to-string';
 import getSymbols from './get-symbols';
 import { Parser } from './parser';
 import { Value } from './value';
-import { Instruction } from './instruction';
+import { Instr } from './instruction';
 
 export class Expression {
-	constructor(public tokens: Instruction[], public parser: Parser) {
+	constructor(public tokens: Instr[], public parser: Parser) {
 	}
 
 	simplify(values?: Value) {

@@ -1,5 +1,5 @@
 import { T, Token } from './token';
-import { Instruction, I, ternaryInstruction, binaryInstruction, unaryInstruction, SimpleInstruction, ExpressionInstruction } from './instruction';
+import { Instruction, I, ternaryInstruction, binaryInstruction, unaryInstruction, Instr } from './instruction';
 import contains from './contains';
 import { TokenStream } from './token-stream';
 import { Value } from './value';
@@ -64,7 +64,7 @@ export class ParserState {
 		}
 	}
 
-	parseAtom(instr: Instruction[]) {
+	parseAtom(instr: Instr[]) {
 		const unaryOps = this.tokens.parser.unaryOps;
 
 		function isPrefixOperator(token: Token) {
@@ -72,27 +72,27 @@ export class ParserState {
 		}
 
 		if (this.accept(T.TNAME) || this.accept(T.TOP, isPrefixOperator)) {
-			instr.push(new SimpleInstruction(I.IVAR, this.current!.value));
+			instr.push(new Instruction(I.IVAR, this.current!.value));
 		} else if (this.accept(T.TNUMBER)) {
-			instr.push(new SimpleInstruction(I.INUMBER, this.current!.value));
+			instr.push(new Instruction(I.INUMBER, this.current!.value));
 		} else if (this.accept(T.TSTRING)) {
-			instr.push(new SimpleInstruction(I.INUMBER, this.current!.value));
+			instr.push(new Instruction(I.INUMBER, this.current!.value));
 		} else if (this.accept(T.TPAREN, '(')) {
 			this.parseExpression(instr);
 			this.expect(T.TPAREN, ')');
 		} else if (this.accept(T.TBRACKET, '[')) {
 			if (this.accept(T.TBRACKET, ']')) {
-				instr.push(new SimpleInstruction(I.IARRAY, 0));
+				instr.push(new Instruction(I.IARRAY, 0));
 			} else {
 				const argCount = this.parseArrayList(instr);
-				instr.push(new SimpleInstruction(I.IARRAY, argCount));
+				instr.push(new Instruction(I.IARRAY, argCount));
 			}
 		} else {
 			throw new Error('unexpected ' + this.nextToken);
 		}
 	}
 
-	parseExpression(instr: Instruction[]) {
+	parseExpression(instr: Instr[]) {
 		const exprInstr = [];
 		if (this.parseUntilEndStatement(instr, exprInstr)) {
 			return;
@@ -104,25 +104,25 @@ export class ParserState {
 		this.pushExpression(instr, exprInstr);
 	}
 
-	pushExpression(instr: Instruction[], exprInstr: Instruction[]) {
+	pushExpression(instr: Instr[], exprInstr: Instr[]) {
 		for (let i = 0, len = exprInstr.length; i < len; i++) {
 			instr.push(exprInstr[i]);
 		}
 	}
 
-	parseUntilEndStatement(instr: Instruction[], exprInstr: Instruction[]) {
+	parseUntilEndStatement(instr: Instr[], exprInstr: Instr[]) {
 		if (!this.accept(T.TSEMICOLON)) return false;
 		if (this.nextToken && this.nextToken.type !== T.TEOF && !(this.nextToken.type === T.TPAREN && this.nextToken.value === ')')) {
-			exprInstr.push(new SimpleInstruction(I.IENDSTATEMENT));
+			exprInstr.push(new Instruction(I.IENDSTATEMENT));
 		}
 		if (this.nextToken!.type !== T.TEOF) {
 			this.parseExpression(exprInstr);
 		}
-		instr.push(new ExpressionInstruction(exprInstr));
+		instr.push(new Instruction(I.IEXPR, exprInstr));
 		return true;
 	}
 
-	parseArrayList(instr: Instruction[]) {
+	parseArrayList(instr: Instr[]) {
 		let argCount = 0;
 
 		while (!this.accept(T.TBRACKET, ']')) {
@@ -137,7 +137,7 @@ export class ParserState {
 		return argCount;
 	}
 
-	parseVariableAssignmentExpression(instr: Instruction[]) {
+	parseVariableAssignmentExpression(instr: Instr[]) {
 		this.parseConditionalExpression(instr);
 		while (this.accept(T.TOP, '=')) {
 			const varName = instr.pop()!;
@@ -147,29 +147,29 @@ export class ParserState {
 				if (!this.tokens.isOperatorEnabled('()=')) {
 					throw new Error('function definition is not permitted');
 				}
-				for (let i = 0, len = varName.value as number + 1; i < len; i++) {
+				for (let i = 0, len = Number(varName.value) + 1; i < len; i++) {
 					const index = lastInstrIndex - i;
 					const inst = instr[index]
 					if(inst.type === I.IVAR) {
-						instr[index] = new SimpleInstruction(I.IVARNAME, inst.value);
+						instr[index] = new Instruction(I.IVARNAME, inst.value);
 					}
 				}
 				this.parseVariableAssignmentExpression(varValue);
-				instr.push(new ExpressionInstruction(varValue));
-				instr.push(new SimpleInstruction(I.IFUNDEF, varName.value));
+				instr.push(new Instruction(I.IEXPR, varValue));
+				instr.push(new Instruction(I.IFUNDEF, varName.value));
 				continue;
 			}
 			if (varName.type !== I.IVAR && varName.type !== I.IMEMBER) {
 				throw new Error('expected variable for assignment');
 			}
 			this.parseVariableAssignmentExpression(varValue);
-			instr.push(new SimpleInstruction(I.IVARNAME, varName.value));
-			instr.push(new ExpressionInstruction(varValue));
+			instr.push(new Instruction(I.IVARNAME, varName.value));
+			instr.push(new Instruction(I.IEXPR, varValue));
 			instr.push(binaryInstruction('='));
 		}
 	}
 
-	parseConditionalExpression(instr: Instruction[]) {
+	parseConditionalExpression(instr: Instr[]) {
 		this.parseOrExpression(instr);
 		while (this.accept(T.TOP, '?')) {
 			const trueBranch = [];
@@ -177,33 +177,33 @@ export class ParserState {
 			this.parseConditionalExpression(trueBranch);
 			this.expect(T.TOP, ':');
 			this.parseConditionalExpression(falseBranch);
-			instr.push(new ExpressionInstruction(trueBranch));
-			instr.push(new ExpressionInstruction(falseBranch));
+			instr.push(new Instruction(I.IEXPR, trueBranch));
+			instr.push(new Instruction(I.IEXPR, falseBranch));
 			instr.push(ternaryInstruction('?'));
 		}
 	}
 
-	parseOrExpression(instr: Instruction[]) {
+	parseOrExpression(instr: Instr[]) {
 		this.parseAndExpression(instr);
 		while (this.accept(T.TOP, 'or')) {
 			const falseBranch = [];
 			this.parseAndExpression(falseBranch);
-			instr.push(new ExpressionInstruction(falseBranch));
+			instr.push(new Instruction(I.IEXPR, falseBranch));
 			instr.push(binaryInstruction('or'));
 		}
 	}
 
-	parseAndExpression(instr: Instruction[]) {
+	parseAndExpression(instr: Instr[]) {
 		this.parseComparison(instr);
 		while (this.accept(T.TOP, 'and')) {
 			const trueBranch = [];
 			this.parseComparison(trueBranch);
-			instr.push(new ExpressionInstruction(trueBranch));
+			instr.push(new Instruction(I.IEXPR, trueBranch));
 			instr.push(binaryInstruction('and'));
 		}
 	}
 
-	parseComparison(instr: Instruction[]) {
+	parseComparison(instr: Instr[]) {
 		this.parseAddSub(instr);
 		while (this.accept(T.TOP, COMPARISON_OPERATORS)) {
 			const op = this.current;
@@ -212,7 +212,7 @@ export class ParserState {
 		}
 	}
 
-	parseAddSub(instr: Instruction[]) {
+	parseAddSub(instr: Instr[]) {
 		this.parseTerm(instr);
 		while (this.accept(T.TOP, ADD_SUB_OPERATORS)) {
 			const op = this.current;
@@ -221,7 +221,7 @@ export class ParserState {
 		}
 	}
 
-	parseTerm(instr: Instruction[]) {
+	parseTerm(instr: Instr[]) {
 		this.parseFactor(instr);
 		while (this.accept(T.TOP, TERM_OPERATORS)) {
 			const op = this.current;
@@ -230,7 +230,7 @@ export class ParserState {
 		}
 	}
 
-	parseFactor(instr: Instruction[]) {
+	parseFactor(instr: Instr[]) {
 		const unaryOps = this.tokens.parser.unaryOps;
 
 		this.save();
@@ -255,7 +255,7 @@ export class ParserState {
 		}
 	}
 
-	parseExponential(instr: Instruction[]) {
+	parseExponential(instr: Instr[]) {
 		this.parsePostfixExpression(instr);
 		while (this.accept(T.TOP, '^')) {
 			this.parseFactor(instr);
@@ -263,14 +263,14 @@ export class ParserState {
 		}
 	}
 
-	parsePostfixExpression(instr: Instruction[]) {
+	parsePostfixExpression(instr: Instr[]) {
 		this.parseFunctionCall(instr);
 		while (this.accept(T.TOP, '!')) {
 			instr.push(unaryInstruction('!'));
 		}
 	}
 
-	parseFunctionCall(instr: Instruction[]) {
+	parseFunctionCall(instr: Instr[]) {
 		const unaryOps = this.tokens.parser.unaryOps;
 		function isPrefixOperator(token) {
 			return token.value in unaryOps;
@@ -284,16 +284,16 @@ export class ParserState {
 			this.parseMemberExpression(instr);
 			while (this.accept(T.TPAREN, '(')) {
 				if (this.accept(T.TPAREN, ')')) {
-					instr.push(new SimpleInstruction(I.IFUNCALL, 0));
+					instr.push(new Instruction(I.IFUNCALL, 0));
 				} else {
 					const argCount = this.parseArgumentList(instr);
-					instr.push(new SimpleInstruction(I.IFUNCALL, argCount));
+					instr.push(new Instruction(I.IFUNCALL, argCount));
 				}
 			}
 		}
 	}
 
-	parseArgumentList(instr: Instruction[]) {
+	parseArgumentList(instr: Instr[]) {
 		let argCount = 0;
 
 		while (!this.accept(T.TPAREN, ')')) {
@@ -307,7 +307,7 @@ export class ParserState {
 		return argCount;
 	}
 
-	parseMemberExpression(instr: Instruction[]) {
+	parseMemberExpression(instr: Instr[]) {
 		this.parseAtom(instr);
 		while (this.accept(T.TOP, '.') || this.accept(T.TBRACKET, '[')) {
 			const op = this.current;
@@ -318,7 +318,7 @@ export class ParserState {
 				}
 
 				this.expect(T.TNAME);
-				instr.push(new SimpleInstruction(I.IMEMBER, this.current?.value));
+				instr.push(new Instruction(I.IMEMBER, this.current?.value));
 			} else if (op?.value === '[') {
 				if (!this.tokens.isOperatorEnabled('[')) {
 					throw new Error('unexpected "[]", arrays are disabled');

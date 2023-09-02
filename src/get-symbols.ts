@@ -1,11 +1,11 @@
-import { I, IEXPR, Instruction } from './instruction';
+import { I, Instr } from './instruction';
 import contains from './contains';
 
 interface getSymbolsOption {
 	withMembers?: boolean
 }
 
-export default function getSymbols(tokens: Instruction[], symbols: unknown[], options: getSymbolsOption = {}) {
+export default function getSymbols(tokens: Instr[], symbols: unknown[], options: getSymbolsOption = {}) {
 	options = options || {};
 	const withMembers = !!options.withMembers;
 	let prevVar: string | number | null = null;
@@ -25,7 +25,7 @@ export default function getSymbols(tokens: Instruction[], symbols: unknown[], op
 			}
 		} else if (item.type === I.IMEMBER && withMembers && prevVar !== null) {
 			prevVar += '.' + item.value;
-		} else if (item.type === IEXPR) {
+		} else if (item.type === I.IEXPR) {
 			getSymbols(item.value, symbols, options);
 		} else if (prevVar !== null) {
 			if (!contains(symbols, prevVar)) {
