@@ -1,11 +1,9 @@
-import { Expression } from './expression';
-import { I, Instr, Instruction } from './instruction';
-import { Value } from './value';
+import { Expression } from './Expression';
+import { I, Instr, Instruction } from './Instruction';
+import { Value } from './Value';
 
 export default async function evaluate(tokens: Instr[], expr: Expression, values = {}) {
 	const nstack: unknown[] = [];
-	let n1, n2, n3;
-	let f, args, argCount;
 
 	if (isExpressionEvaluator(tokens)) {
 		return resolveExpression(tokens, values);
@@ -19,27 +17,27 @@ export default async function evaluate(tokens: Instr[], expr: Expression, values
 		if (type === I.INUMBER || type === I.IVARNAME) {
 			nstack.push(item.value);
 		} else if (type === I.IOP2) {
-			n2 = nstack.pop();
-			n1 = nstack.pop();
+			const n2 = nstack.pop() as any;
+			const n1 = nstack.pop() as any;
 			if (item.value === 'and') {
 				nstack.push(n1 ? !!await evaluate(n2, expr, values) : false);
 			} else if (item.value === 'or') {
 				nstack.push(n1 ? true : !!await evaluate(n2, expr, values));
 			} else if (item.value === '=') {
-				f = expr.parser.binaryOps[item.value];
+				const f = expr.parser.binaryOps[item.value];
 				nstack.push(f(n1, await evaluate(n2, expr, values), values));
 			} else {
-				f = expr.parser.binaryOps[item.value];
+				const f = expr.parser.binaryOps[item.value];
 				nstack.push(f(await resolveExpression(n1, values), await resolveExpression(n2, values)));
 			}
 		} else if (type === I.IOP3) {
-			n3 = nstack.pop();
-			n2 = nstack.pop();
-			n1 = nstack.pop();
+			const n3 = nstack.pop() as any;
+			const n2 = nstack.pop() as any;
+			const n1 = nstack.pop() as any;
 			if (item.value === '?') {
 				nstack.push(await evaluate(n1 ? n2 : n3, expr, values));
 			} else {
-				f = expr.parser.ternaryOps[item.value];
+				const f = expr.parser.ternaryOps[item.value];
 				nstack.push(f(await resolveExpression(n1, values), await resolveExpression(n2, values), await resolveExpression(n3, values)));
 			}
 		} else if (type === I.IVAR) {
@@ -59,16 +57,16 @@ export default async function evaluate(tokens: Instr[], expr: Expression, values
 				}
 			}
 		} else if (type === I.IOP1) {
-			n1 = nstack.pop();
-			f = expr.parser.unaryOps[item.value];
+			const n1 = nstack.pop();
+			const f = expr.parser.unaryOps[item.value];
 			nstack.push(f(resolveExpression(n1, values)));
 		} else if (type === I.IFUNCALL) {
-			argCount = item.value;
-			args = [];
+			let argCount = Number(item.value);
+			const args: unknown[] = [];
 			while (argCount-- > 0) {
 				args.unshift(resolveExpression(nstack.pop(), values));
 			}
-			f = nstack.pop();
+			const f = nstack.pop() as any;
 			if (f.bind && f.apply && f.call) {
 				nstack.push(await f.bind(undefined)(...args));
 			} else {
@@ -104,13 +102,13 @@ export default async function evaluate(tokens: Instr[], expr: Expression, values
 		} else if (type === I.IEXPREVAL) {
 			nstack.push(item);
 		} else if (type === I.IMEMBER) {
-			n1 = nstack.pop();
+			const n1 = nstack.pop()!;
 			nstack.push(n1[item.value]);
 		} else if (type === I.IENDSTATEMENT) {
 			nstack.pop();
 		} else if (type === I.IARRAY) {
-			argCount = item.value;
-			args = [];
+			let argCount = Number(item.value);
+			const args: unknown[] = [];
 			while (argCount-- > 0) {
 				args.unshift(nstack.pop());
 			}
@@ -134,10 +132,10 @@ function createExpressionEvaluator(token, expr) {
 	});
 }
 
-function isExpressionEvaluator(n) {
-	return n && n.type === I.IEXPREVAL;
+function isExpressionEvaluator(n: unknown): n is Instruction<I.IEXPREVAL> {
+	return n instanceof Instruction && n.type === I.IEXPREVAL;
 }
 
-function resolveExpression(n, values: Value) {
+function resolveExpression(n: unknown, values: Value) {
 	return isExpressionEvaluator(n) ? n.value(values) : n;
 }

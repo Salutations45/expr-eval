@@ -1,3 +1,4 @@
+import { Value } from "./Value";
 
 export enum I {
 	INUMBER = 'INUMBER',
@@ -17,17 +18,17 @@ export enum I {
 
 export type Instr = SimpleInstruction | ExpressionEvaluator | ExpressionInstruction;
 
-interface SimpleInstruction {
+export interface SimpleInstruction {
 	readonly type: Exclude<I, (I.IEXPR|I.IEXPREVAL)>;
 	value: string;
 }
 
-interface ExpressionEvaluator {
+export interface ExpressionEvaluator {
 	readonly type: I.IEXPREVAL;
-	value: (scope: any)=>Promise<unknown>;
+	value: (scope: Value)=>Promise<unknown>;
 }
 
-interface ExpressionInstruction {
+export interface ExpressionInstruction {
 	readonly type: I.IEXPR;
 	value: Instr[];
 }

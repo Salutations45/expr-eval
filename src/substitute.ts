@@ -1,5 +1,5 @@
-import { Expression } from './expression';
-import { Instruction, I, ternaryInstruction, binaryInstruction, unaryInstruction, Instr } from './instruction';
+import { Expression } from './Expression';
+import { Instruction, I, ternaryInstruction, binaryInstruction, unaryInstruction, Instr } from './Instruction';
 
 export default function substitute(tokens: Instr[], variable: string, expr: Expression) {
 	const newexpression: Instr[] = [];

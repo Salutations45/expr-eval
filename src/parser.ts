@@ -1,7 +1,7 @@
-import { T } from './token';
-import { TokenStream } from './token-stream';
-import { ParserState } from './parser-state';
-import { Expression } from './expression';
+import { T } from './Token';
+import { TokenStream } from './TokenStream';
+import { ParserState } from './ParserState';
+import { Expression } from './Expression';
 import {
 	add,
 	sub,
@@ -31,7 +31,7 @@ import {
 	arrayJoin,
 	sum
 } from './functions';
-import { Value } from './value';
+import { Value } from './Value';
 
 export enum OptType {
 	ADD = 'add',

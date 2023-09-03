@@ -1,9 +1,7 @@
-import { I, Instr } from './instruction';
+import { I, Instr } from './Instruction';
 
 export default function expressionToString(tokens: Instr[], toJS: boolean) {
 	let nstack: string[] = [];
-	let n1: string, n2: string, n3: string;
-	let f, args, argCount;
 	for (let i = 0; i < tokens.length; i++) {
 		const item = tokens[i];
 		const type = item.type;
@@ -16,9 +14,9 @@ export default function expressionToString(tokens: Instr[], toJS: boolean) {
 				nstack.push(escapeValue(item.value));
 			}
 		} else if (type === I.IOP2) {
-			n2 = nstack.pop()!;
-			n1 = nstack.pop()!;
-			f = item.value;
+			const n2 = nstack.pop()!;
+			const n1 = nstack.pop()!;
+			const f = item.value;
 			if (toJS) {
 				if (f === '^') {
 					nstack.push('Math.pow(' + n1 + ', ' + n2 + ')');
@@ -43,10 +41,10 @@ export default function expressionToString(tokens: Instr[], toJS: boolean) {
 				}
 			}
 		} else if (type === I.IOP3) {
-			n3 = nstack.pop()!;
-			n2 = nstack.pop()!;
-			n1 = nstack.pop()!;
-			f = item.value;
+			const n3 = nstack.pop()!;
+			const n2 = nstack.pop()!;
+			const n1 = nstack.pop()!;
+			const f = item.value;
 			if (f === '?') {
 				nstack.push('(' + n1 + ' ? ' + n2 + ' : ' + n3 + ')');
 			} else {
@@ -55,8 +53,8 @@ export default function expressionToString(tokens: Instr[], toJS: boolean) {
 		} else if (type === I.IVAR || type === I.IVARNAME) {
 			nstack.push(item.value as string);
 		} else if (type === I.IOP1) {
-			n1 = nstack.pop()!;
-			f = item.value;
+			const n1 = nstack.pop()!;
+			const f = item.value;
 			if (f === '-' || f === '+') {
 				nstack.push('(' + f + n1 + ')');
 			} else if (toJS) {
@@ -69,34 +67,34 @@ export default function expressionToString(tokens: Instr[], toJS: boolean) {
 				nstack.push('(' + f + ' ' + n1 + ')');
 			}
 		} else if (type === I.IFUNCALL) {
-			argCount = item.value;
-			args = [];
+			let argCount = Number(item.value);
+			const args: string[] = [];
 			while (argCount-- > 0) {
-				args.unshift(nstack.pop());
+				args.unshift(nstack.pop()!);
 			}
-			f = nstack.pop();
+			const f = nstack.pop();
 			nstack.push(f + '(' + args.join(', ') + ')');
 		} else if (type === I.IFUNDEF) {
-			n2 = nstack.pop()!;
-			argCount = item.value;
-			args = [];
+			const n2 = nstack.pop()!;
+			let argCount = Number(item.value);
+			const args: string[] = [];
 			while (argCount-- > 0) {
-				args.unshift(nstack.pop());
+				args.unshift(nstack.pop()!);
 			}
-			n1 = nstack.pop()!;
+			const n1 = nstack.pop()!;
 			if (toJS) {
 				nstack.push('(' + n1 + ' = function(' + args.join(', ') + ') { return ' + n2 + ' })');
 			} else {
 				nstack.push('(' + n1 + '(' + args.join(', ') + ') = ' + n2 + ')');
 			}
 		} else if (type === I.IMEMBER) {
-			n1 = nstack.pop()!;
+			const n1 = nstack.pop()!;
 			nstack.push(n1 + '.' + item.value);
 		} else if (type === I.IARRAY) {
-			argCount = item.value;
-			args = [];
+			let argCount = Number(item.value);
+			const args: string[] = [];
 			while (argCount-- > 0) {
-				args.unshift(nstack.pop());
+				args.unshift(nstack.pop()!);
 			}
 			nstack.push('[' + args.join(', ') + ']');
 		} else if (item.type === I.IEXPR) {

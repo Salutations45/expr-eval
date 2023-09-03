@@ -9,8 +9,8 @@
  but don't feel like you have to let me know or ask permission.
 */
 
-import { Expression } from './expression';
-import { Parser } from './parser';
+import { Expression } from './Expression';
+import { Parser } from './Parser';
 
 export {
 	Expression,

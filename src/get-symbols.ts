@@ -1,4 +1,4 @@
-import { I, Instr } from './instruction';
+import { I, Instr } from './Instruction';
 import contains from './contains';
 
 interface getSymbolsOption {

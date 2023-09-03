@@ -1,9 +1,9 @@
-import { T, Token } from './token';
-import { Instruction, I, ternaryInstruction, binaryInstruction, unaryInstruction, Instr } from './instruction';
+import { T, Token } from './Token';
+import { Instruction, I, ternaryInstruction, binaryInstruction, unaryInstruction, Instr } from './Instruction';
 import contains from './contains';
-import { TokenStream } from './token-stream';
-import { Value } from './value';
-import { Parser } from './parser';
+import { TokenStream } from './TokenStream';
+import { Value } from './Value';
+import { Parser } from './Parser';
 
 export class ParserState {
 
@@ -25,13 +25,13 @@ export class ParserState {
 		return (this.nextToken = this.tokens.next());
 	}
 
-	tokenMatches(token: Token, value?) {
+	tokenMatches(token: Token, value?: string | string[] | ((token: Token)=>boolean) ) {
 		if (typeof value === 'undefined') {
 			return true;
 		} else if (Array.isArray(value)) {
 			return contains(value, token.value);
 		} else if (typeof value === 'function') {
-			return value(token);
+			return Boolean(value(token));
 		} else {
 			return token.value === value;
 		}

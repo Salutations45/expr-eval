@@ -3,9 +3,9 @@ import substitute from './substitute';
 import evaluate from './evaluate';
 import expressionToString from './expression-to-string';
 import getSymbols from './get-symbols';
-import { Parser } from './parser';
-import { Value } from './value';
-import { Instr } from './instruction';
+import { Parser } from './Parser';
+import { Value } from './Value';
+import { Instr } from './Instruction';
 
 export class Expression {
 	constructor(public tokens: Instr[], public parser: Parser) {
@@ -13,7 +13,7 @@ export class Expression {
 
 	simplify(values?: Value) {
 		values = values || {};
-		return new Expression(simplify(this.tokens, this.parser.unaryOps, this.parser.binaryOps, this.parser.ternaryOps, values), this.parser);
+		return new Expression(simplify(this.tokens, this.parser, values), this.parser);
 	}
 
 	substitute(variable: string, expr: Expression | string) {

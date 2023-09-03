@@ -1,6 +1,6 @@
 
-import { Parser } from './parser';
-import { Token, T } from './token';
+import { Parser } from './Parser';
+import { Token, T } from './Token';
 
 export class TokenStream {
 	pos = 0;
