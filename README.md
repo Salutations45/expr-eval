@@ -53,11 +53,9 @@ Documentation
     - [Expression Syntax](#expression-syntax)
       - [Operator Precedence](#operator-precedence)
       - [Unary operators](#unary-operators)
-      - [Pre-defined functions](#pre-defined-functions)
+      - [Constants](#constants)
       - [Array literals](#array-literals)
       - [Function definitions](#function-definitions)
-      - [Custom JavaScript functions](#custom-javascript-functions)
-      - [Constants](#constants)
   - [Main differences from silentmatt/expr-eval](#main-differences-from-silentmattexpr-eval)
   - [Tests](#tests)
 
@@ -228,7 +226,7 @@ Operator                 | Associativity | Description
 (...)                    | None          | Grouping
 f(), x.y, a[i]           | Left          | Function call, property access, array indexing
 ^                        | Right         | Exponentiation
-+, -, not, sqrt, etc.    | Right         | Unary prefix operators (see below for the full list)
++, -, not, etc.          | Right         | Unary prefix operators (see below for the full list)
 \*, /, %                 | Left          | Multiplication, division, remainder
 +, -                     | Left          | Addition, subtraction
 ==, !=, >=, <=, >, <, in | Left          | Equals, not equals, etc. "in" means "is the left operand included in the right array operand?"
@@ -271,14 +269,15 @@ round x  | X, rounded to the nearest integer, using "grade-school rounding"
 sign x   | Sign of x (-1, 0, or 1 for negative, zero, or positive respectively)
 trunc x  | Integral part of a X, looks like floor(x) unless for negative number
 
-#### Pre-defined functions
+#### Constants
 
-Besides the "operator" functions, there are several pre-defined functions. You
-can provide your own, by binding variables to normal JavaScript functions.
-These are not evaluated by simplify.
+The parser also includes constants that can be used in expressions.
 
-Function      | Description
-:------------ | :----------
+Constant     | Description
+:----------- | :----------
+true         | Logical `true` value
+false        | Logical `false` value
+PI           | The value of `Math.PI` from your JavaScript runtime
 random(n)     | Get a random number in the range [0, n). If n is zero, or not provided, it defaults to 1.
 min(a,b,…)    | Get the smallest (minimum) number in the list.
 max(a,b,…)    | Get the largest (maximum) number in the list.
@@ -286,50 +285,7 @@ pow(x, y)     | Equivalent to x^y. For consistency with JavaScript's Math object
 roundTo(x, n) | Rounds x to n places after the decimal point.
 indexOf(x, a) | Return the first index of string or array `a` matching the value `x`, or `-1` if not found.
 join(sep, a)  | Concatenate the elements of `a`, separated by `sep`.
-
-#### Array literals
-
-Arrays can be created by including the elements inside square `[]` brackets, separated by commas. For example:
-
-    [ 1, 2, 3, 2+2, 10/2 ]
-
-#### Function definitions
-
-You can define functions using the syntax `name(params) = expression`. When it's evaluated, the name will be added to the passed in scope as a function. You can call it later in the expression, or make it available to other expressions by re-using the same scope object. Functions can support multiple parameters, separated by commas.
-
-Examples:
-```js
-    square(x) = x*x
-    add(a, b) = a + b
-    factorial(x) = x < 2 ? 1 : x * factorial(x - 1)
-```
-#### Custom JavaScript functions
-
-If you need additional functions that aren't supported out of the box, you can easily add them in your own code. Instances of the `Parser` class have a property called `functions` that's simply an object with all the functions that are in scope. You can add, replace, or delete any of the properties to customize what's available in the expressions. For example:
-```js
-    const parser = new Parser();
-
-    // Add a new function
-    parser.functions.customAddFunction = function (arg1, arg2) {
-      return arg1 + arg2;
-    };
-
-    // Remove the factorial function
-    delete parser.functions.fac;
-
-    parser.evaluate('customAddFunction(2, 4) == 6'); // true
-    //parser.evaluate('fac(3)'); // This will fail
-```
-#### Constants
-
-The parser also includes pre-defined constants that can be used in expressions. These are shown
-in the table below:
-
-Constant     | Description
-:----------- | :----------
-PI           | The value of `Math.PI` from your JavaScript runtime
-true         | Logical `true` value
-false        | Logical `false` value
+sum(arr)      | Return the sum of all elements in array.
 
 Pre-defined constants are stored in `parser.consts`. You can make changes to this property to customise the
 constants available to your expressions. For example:
@@ -339,10 +295,37 @@ constants available to your expressions. For example:
 
     console.log(parser.parse('A+B/R').toString());  // ((A + B) / 1.234)
 ```
-To disable the pre-defined constants, you can replace or delete `parser.consts`:
+
+As constants can also be functions, if you need additional functions that aren't supported out of the box, you can easily add them in your own code. For example:
 ```js
     const parser = new Parser();
-    parser.consts = {};
+
+    // Add a new function
+    parser.consts.customAddFunction = function (arg1, arg2) {
+      return arg1 + arg2;
+    };
+    parser.evaluate('customAddFunction(2, 4) == 6'); // true
+
+    // Remove the random function
+    delete parser.consts.random;
+    parser.evaluate('random(10)'); // This will fail
+```
+
+#### Array literals
+
+Arrays can be created by including the elements inside square `[]` brackets, separated by commas. For example:
+
+    [ 1, 2, 3, 2+2, 10/2 ]
+
+#### Function definitions
+
+You can define functions in an expression using the syntax `name(params) = expression`. When it's evaluated, the name will be added to the passed in scope as a function. You can call it later in the expression, or make it available to other expressions by re-using the same scope object. Functions can support multiple parameters, separated by commas.
+
+Examples:
+```js
+    square(x) = x*x
+    add(a, b) = a + b
+    factorial(x) = x < 2 ? 1 : x * factorial(x - 1)
 ```
 
 ## Main differences from silentmatt/expr-eval

@@ -50,7 +50,7 @@ export class ParserState {
 	}
 
 	accept(type: T, value?) {
-		if (this.nextToken?.type === type && this.tokenMatches(this.nextToken!, value)) {
+		if (this.nextToken!.type === type && this.tokenMatches(this.nextToken!, value)) {
 			this.next();
 			return true;
 		}
@@ -93,7 +93,7 @@ export class ParserState {
 	}
 
 	parseExpression(instr: Instr[]) {
-		const exprInstr = [];
+		const exprInstr: Instr[] = [];
 		if (this.parseUntilEndStatement(instr, exprInstr)) {
 			return;
 		}
@@ -141,7 +141,7 @@ export class ParserState {
 		this.parseConditionalExpression(instr);
 		while (this.accept(T.TOP, '=')) {
 			const varName = instr.pop()!;
-			const varValue = [];
+			const varValue: Instr[] = [];
 			const lastInstrIndex = instr.length - 1;
 			if (varName.type === I.IFUNCALL) {
 				if (!this.tokens.isOperatorEnabled('()=')) {
@@ -172,8 +172,8 @@ export class ParserState {
 	parseConditionalExpression(instr: Instr[]) {
 		this.parseOrExpression(instr);
 		while (this.accept(T.TOP, '?')) {
-			const trueBranch = [];
-			const falseBranch = [];
+			const trueBranch: Instr[] = [];
+			const falseBranch: Instr[] = [];
 			this.parseConditionalExpression(trueBranch);
 			this.expect(T.TOP, ':');
 			this.parseConditionalExpression(falseBranch);
@@ -186,7 +186,7 @@ export class ParserState {
 	parseOrExpression(instr: Instr[]) {
 		this.parseAndExpression(instr);
 		while (this.accept(T.TOP, 'or')) {
-			const falseBranch = [];
+			const falseBranch: Instr[] = [];
 			this.parseAndExpression(falseBranch);
 			instr.push(new Instruction(I.IEXPR, falseBranch));
 			instr.push(binaryInstruction('or'));
@@ -196,7 +196,7 @@ export class ParserState {
 	parseAndExpression(instr: Instr[]) {
 		this.parseComparison(instr);
 		while (this.accept(T.TOP, 'and')) {
-			const trueBranch = [];
+			const trueBranch: Instr[] = [];
 			this.parseComparison(trueBranch);
 			instr.push(new Instruction(I.IEXPR, trueBranch));
 			instr.push(binaryInstruction('and'));
@@ -272,11 +272,8 @@ export class ParserState {
 
 	parseFunctionCall(instr: Instr[]) {
 		const unaryOps = this.tokens.parser.unaryOps;
-		function isPrefixOperator(token) {
-			return token.value in unaryOps;
-		}
 
-		if (this.accept(T.TOP, isPrefixOperator)) {
+		if (this.accept(T.TOP, (token) => token.value in unaryOps )) {
 			const op = this.current;
 			this.parseAtom(instr);
 			instr.push(unaryInstruction(op!.value));

@@ -2,7 +2,7 @@ import { Expression } from './Expression';
 import { I, Instr, Instruction } from './Instruction';
 import { Value } from './Value';
 
-export default async function evaluate(tokens: Instr[], expr: Expression, values = {}) {
+export default async function evaluate(tokens: Instr[], expr: Expression, values: Value = {}) {
 	const nstack: unknown[] = [];
 
 	if (isExpressionEvaluator(tokens)) {
@@ -44,8 +44,8 @@ export default async function evaluate(tokens: Instr[], expr: Expression, values
 			if (/^__proto__|prototype|constructor$/.test(item.value as string)) {
 				throw new Error('prototype access detected');
 			}
-			if (item.value in expr.parser.functions) {
-				nstack.push(expr.parser.functions[item.value]);
+			if (item.value in expr.parser.consts) {
+				nstack.push(expr.parser.consts[item.value]);
 			} else if (item.value in expr.parser.unaryOps && expr.parser.isOperatorEnabled(item.value as string)) {
 				nstack.push(expr.parser.unaryOps[item.value]);
 			} else {

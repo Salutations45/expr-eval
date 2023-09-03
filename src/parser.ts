@@ -8,7 +8,6 @@ import {
 	mul,
 	div,
 	mod,
-	concat,
 	equal,
 	notEqual,
 	greaterThan,
@@ -119,7 +118,7 @@ export class Parser {
 		'?': condition
 	};
 
-	functions = {
+	consts = {
 		random,
 		min,
 		max,
@@ -127,17 +126,11 @@ export class Parser {
 		indexOf: stringOrArrayIndexOf,
 		join: arrayJoin,
 		sum,
-		concat
+		false: false,
+		true: true
 	};
 
-	consts = {
-		PI: Math.PI,
-		true: true,
-		false: false
-	};
-
-	constructor(public options: ParserOptions = {operators: {}}) {
-	}
+	constructor(public options: ParserOptions = {operators: {}}) {}
 
 	static parse(expr: string) {
 		return sharedParser.parse(expr);

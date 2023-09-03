@@ -19,7 +19,7 @@ export enum I {
 export type Instr = SimpleInstruction | ExpressionEvaluator | ExpressionInstruction;
 
 export interface SimpleInstruction {
-	readonly type: Exclude<I, (I.IEXPR|I.IEXPREVAL)>;
+	readonly type: Exclude<I, (I.IEXPR | I.IEXPREVAL)>;
 	value: string;
 }
 

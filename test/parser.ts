@@ -22,15 +22,7 @@ describe('Parser', async function () {
 			it('should ignore whitespace', async function () {
 				strictEqual(await parser.evaluate(' 3\r + \n \t 4 '), 7);
 			});
-
-			it('should accept variables starting with E', async function () {
-				strictEqual(await parser.parse('2 * ERGONOMIC').evaluate({ ERGONOMIC: 1000 }), 2000);
-			});
-
-			it('should accept variables starting with PI', async function () {
-				strictEqual(await parser.parse('1 / PITTSBURGH').evaluate({ PITTSBURGH: 2 }), 0.5);
-			});
-
+			
 			it('should fail on empty parentheses', async function () {
 				throws(function () { parser.parse('5/()'); }, Error);
 			});

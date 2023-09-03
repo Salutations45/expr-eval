@@ -1,8 +1,8 @@
 import simplify from './simplify';
 import substitute from './substitute';
 import evaluate from './evaluate';
-import expressionToString from './expression-to-string';
-import getSymbols from './get-symbols';
+import expressionToString from './expressionToString';
+import getSymbols from './getSymbols';
 import { Parser } from './Parser';
 import { Value } from './Value';
 import { Instr } from './Instruction';
@@ -11,8 +11,7 @@ export class Expression {
 	constructor(public tokens: Instr[], public parser: Parser) {
 	}
 
-	simplify(values?: Value) {
-		values = values || {};
+	simplify(values: Value = {}) {
 		return new Expression(simplify(this.tokens, this.parser, values), this.parser);
 	}
 
@@ -32,7 +31,7 @@ export class Expression {
 	}
 
 	symbols(options = {}) {
-		const vars = [];
+		const vars: Value = [];
 		getSymbols(this.tokens, vars, options);
 		return vars;
 	}
@@ -40,14 +39,12 @@ export class Expression {
 	variables(options = {}) {
 		const vars = [];
 		getSymbols(this.tokens, vars, options);
-		const functions = this.parser.functions;
-		return vars.filter(function (name) {
-			return !(name in functions);
-		});
+		const consts = this.parser.consts;
+		return vars.filter( (name) => !(name in consts) );
 	}
 
 	toJSFunction(param?: string, variables?: Value) {
-		const f = new Function(param!, 'with(this.parser.functions) with (this.parser.ternaryOps) with (this.parser.binaryOps) with (this.parser.unaryOps) { return ' + expressionToString(this.simplify(variables).tokens, true) + '; }'); // eslint-disable-line no-new-func
+		const f = new Function(param!, 'with(this.parser.consts) with (this.parser.ternaryOps) with (this.parser.binaryOps) with (this.parser.unaryOps) { return ' + expressionToString(this.simplify(variables).tokens, true) + '; }'); // eslint-disable-line no-new-func
 		return (...args: unknown[]) => {
 			return f.apply(this, args);
 		};

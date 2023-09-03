@@ -40,7 +40,6 @@ export class TokenStream {
 			this.isComma() ||
 			this.isSemicolon() ||
 			this.isNamedOp() ||
-			this.isConst() ||
 			this.isName()) {
 			return this.current;
 		} else {
@@ -109,28 +108,6 @@ export class TokenStream {
 		return false;
 	}
 
-	isConst() {
-		const startPos = this.pos;
-		let i = startPos;
-		for (; i < this.expression.length; i++) {
-			const c = this.expression.charAt(i);
-			if (c.toUpperCase() === c.toLowerCase()) {
-				if (i === this.pos || (c !== '_' && c !== '.' && (c < '0' || c > '9'))) {
-					break;
-				}
-			}
-		}
-		if (i > startPos) {
-			const str = this.expression.substring(startPos, i);
-			if (str in this.parser.consts) {
-				this.current = this.newToken(T.TNUMBER, this.parser.consts[str]);
-				this.pos += str.length;
-				return true;
-			}
-		}
-		return false;
-	}
-
 	isNamedOp() {
 		const startPos = this.pos;
 		let i = startPos;
@@ -195,7 +172,7 @@ export class TokenStream {
 		return r;
 	}
 
-	unescape(v) {
+	unescape(v: string) {
 		let index = v.indexOf('\\');
 		if (index < 0) {
 			return v;

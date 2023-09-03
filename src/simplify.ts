@@ -49,7 +49,7 @@ export default function simplify(tokens: Instr[], parser: Parser, values: Value)
 		} else if (type === I.IMEMBER && nstack.length > 0) {
 			const n1 = nstack.pop()!;
 			nstack.push(new Instruction(I.INUMBER, n1.value[item.value]));
-		}// eslint-disable-line
+		}
 		/* else if (type === IARRAY && nstack.length >= item.value) {
 			var length = item.value;
 			while (length-- > 0) {
