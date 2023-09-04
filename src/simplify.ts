@@ -1,19 +1,21 @@
 import { Instruction, I, Instr } from './Instruction';
 import { Parser } from './Parser';
-import { Value } from './Value';
 
-export default function simplify(tokens: Instr[], parser: Parser, values: Value) {
+export default function simplify(tokens: Instr[], parser: Parser, values: { [propertyName: string]: unknown }) {
 	const nstack: Instr[] = [];
 	const newexpression: Instr[] = [];
 	for (let i = 0; i < tokens.length; i++) {
-		let item = tokens[i] as any;
+		let item = tokens[i];
 		const type = item.type;
 		if (type === I.INUMBER || type === I.IVARNAME) {
 			if (Array.isArray(item.value)) {
-				nstack.push(...simplify((item.value)
+				/*
+				nstack.push(...simplify(
+					(item.value as any)
 					.map((x: unknown) => { new Instruction(I.INUMBER, x)})
-					.concat(new Instruction(I.IARRAY, item.value.length)), parser, values));
-			} else {
+					.concat(new Instruction(I.IARRAY, item.value.length))
+				, parser, values));*/
+			}else {
 				nstack.push(item);
 			}
 		} else if (type === I.IVAR && Object.keys(values).includes(item.value)) {
@@ -47,7 +49,7 @@ export default function simplify(tokens: Instr[], parser: Parser, values: Value)
 			}
 			newexpression.push(new Instruction(I.IEXPR, simplify(item.value, parser, values)));
 		} else if (type === I.IMEMBER && nstack.length > 0) {
-			const n1 = nstack.pop()!;
+			const n1 = nstack.pop() as any;
 			nstack.push(new Instruction(I.INUMBER, n1.value[item.value]));
 		}
 		/* else if (type === IARRAY && nstack.length >= item.value) {

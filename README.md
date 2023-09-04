@@ -43,7 +43,7 @@ Documentation
       - [Parser.parse(expression: string)](#parserparseexpression-string)
       - [Parser.evaluate(expression: string, variables?: object)](#parserevaluateexpression-string-variables-object)
     - [Expression](#expression)
-      - [evaluate(variables?: object)](#evaluatevariables-object)
+      - [evaluate(scope?: object)](#evaluatescope-object)
       - [substitute(variable: string, expression: Expression | string | number)](#substitutevariable-string-expression-expression--string--number)
       - [simplify(variables: object)](#simplifyvariables-object)
       - [variables(options?: object)](#variablesoptions-object)
@@ -117,11 +117,11 @@ JavaScript functions, i.e. they can be "called" with variables bound to
 passed-in values. In fact, they can even be converted into JavaScript
 functions.
 
-#### evaluate(variables?: object)
+#### evaluate(scope?: object)
 
-Evaluate the expression, with variables bound to the values in {variables}. Each
+Evaluate the expression, with variables bound to the values in {scope}. Each
 variable in the expression is bound to the corresponding member of the
-`variables` object. If there are unbound variables, `evaluate` will throw an
+`scope` object. If there are unbound variables, `evaluate` will throw an
 exception.
 ```js
     js> expr = Parser.parse("2 ^ x");

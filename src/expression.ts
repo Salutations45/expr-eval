@@ -4,14 +4,13 @@ import evaluate from './evaluate';
 import expressionToString from './expressionToString';
 import getSymbols from './getSymbols';
 import { Parser } from './Parser';
-import { Value } from './Value';
 import { Instr } from './Instruction';
 
 export class Expression {
 	constructor(public tokens: Instr[], public parser: Parser) {
 	}
 
-	simplify(values: Value = {}) {
+	simplify(values: { [propertyName: string]: unknown } = {}) {
 		return new Expression(simplify(this.tokens, this.parser, values), this.parser);
 	}
 
@@ -22,7 +21,7 @@ export class Expression {
 		return new Expression(substitute(this.tokens, variable, expr), this.parser);
 	}
 
-	evaluate(values?: Value) {
+	evaluate(values?: { [propertyName: string]: unknown }) {
 		return evaluate(this.tokens, this, values);
 	}
 
@@ -31,19 +30,19 @@ export class Expression {
 	}
 
 	symbols(options = {}) {
-		const vars: Value = [];
+		const vars: string[] = [];
 		getSymbols(this.tokens, vars, options);
 		return vars;
 	}
 
 	variables(options = {}) {
-		const vars = [];
+		const vars: string[] = [];
 		getSymbols(this.tokens, vars, options);
 		const consts = this.parser.consts;
 		return vars.filter( (name) => !(name in consts) );
 	}
 
-	toJSFunction(param?: string, variables?: Value) {
+	toJSFunction(param?: string, variables?: { [propertyName: string]: unknown }) {
 		const f = new Function(param!, 'with(this.parser.consts) with (this.parser.ternaryOps) with (this.parser.binaryOps) with (this.parser.unaryOps) { return ' + expressionToString(this.simplify(variables).tokens, true) + '; }'); // eslint-disable-line no-new-func
 		return (...args: unknown[]) => {
 			return f.apply(this, args);

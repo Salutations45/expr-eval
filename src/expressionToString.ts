@@ -11,7 +11,7 @@ export default function expressionToString(tokens: Instr[], toJS: boolean) {
 			} else if (Array.isArray(item.value)) {
 				nstack.push('[' + item.value.map(escapeValue).join(', ') + ']');
 			} else {
-				nstack.push(escapeValue(item.value));
+				nstack.push(String(escapeValue(item.value)));
 			}
 		} else if (type === I.IOP2) {
 			const n2 = nstack.pop()!;

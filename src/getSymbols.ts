@@ -1,14 +1,13 @@
 import { I, Instr } from './Instruction';
-import { Value } from './Value';
 import contains from './contains';
 
 interface getSymbolsOption {
 	withMembers?: boolean
 }
 
-export default function getSymbols(tokens: Instr[], symbols: Value[], options: getSymbolsOption = {}) {
+export default function getSymbols(tokens: Instr[], symbols: string[], options: getSymbolsOption = {}) {
 	const withMembers = !!options.withMembers;
-	let prevVar: string | number | null = null;
+	let prevVar: string | null = null;
 
 	for (let i = 0; i < tokens.length; i++) {
 		const item = tokens[i];

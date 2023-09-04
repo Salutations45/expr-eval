@@ -30,7 +30,6 @@ import {
 	arrayJoin,
 	sum
 } from './functions';
-import { Value } from './Value';
 
 export enum OptType {
 	ADD = 'add',
@@ -136,8 +135,8 @@ export class Parser {
 		return sharedParser.parse(expr);
 	}
 
-	static evaluate(expr: string, variables?: Value) {
-		return sharedParser.parse(expr).evaluate(variables);
+	static evaluate(expr: string, scope: { [propertyName: string]: unknown } = {}) {
+		return sharedParser.parse(expr).evaluate(scope);
 	}
 	
 	getOptionName(op: string): string {
@@ -165,8 +164,8 @@ export class Parser {
 		return new Expression(instr, this);
 	}
 
-	evaluate(expr: string, variables?: Value) {
-		return this.parse(expr).evaluate(variables);
+	evaluate(expr: string, scope: { [propertyName: string]: unknown } = {}) {
+		return this.parse(expr).evaluate(scope);
 	}
 }
 
