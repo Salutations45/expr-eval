@@ -1,5 +1,5 @@
 import { Expression } from './Expression';
-import { I, Instr, Instruction } from './Instruction';
+import { ExpressionInstruction, I, Instr, Instruction } from './Instruction';
 import { Value } from './Value';
 
 export default async function evaluate(tokens: Instr[], expr: Expression, values: Value = {}) {
@@ -66,37 +66,33 @@ export default async function evaluate(tokens: Instr[], expr: Expression, values
 			while (argCount-- > 0) {
 				args.unshift(resolveExpression(nstack.pop(), values));
 			}
-			const f = nstack.pop() as any;
-			if (f.bind && f.apply && f.call) {
-				nstack.push(await f.bind(undefined)(...args));
+			const f = nstack.pop();
+			if (typeof f === 'function') {
+				nstack.push(await f(...args));
 			} else {
 				throw new Error(f + ' is not a function');
 			}
 		} else if (type === I.IFUNDEF) {
-			// Create closure to keep references to arguments and expression
-			nstack.push((function () {
-				const n2 = nstack.pop();
-				const args: any[] = [];
-				let argCount = Number(item.value);
-				while (argCount-- > 0) {
-					args.unshift(nstack.pop());
+			const n2 = nstack.pop();
+			const args: unknown[] = [];
+			let argCount = Number(item.value);
+			while (argCount-- > 0) {
+				args.unshift(nstack.pop());
+			}
+			const n1 = nstack.pop();
+			const f = function (...argsArray: unknown[]) {
+				const scope = Object.assign({}, values);
+				for (let i = 0, len = args.length; i < len; i++) {
+					scope[args[i] as string] = argsArray[i];
 				}
-				const n1 = nstack.pop();
-				const f = function (...argsArray: unknown[]) {
-					const scope = Object.assign({}, values);
-					for (let i = 0, len = args.length; i < len; i++) {
-						scope[args[i]] = argsArray[i];
-					}
-					return evaluate(n2 as Instr[], expr, scope);
-				};
-				// f.name = n1
-				Object.defineProperty(f, 'name', {
-					value: n1,
-					writable: false
-				});
-				values[n1 as string] = f;
-				return f;
-			})());
+				return evaluate(n2 as Instr[], expr, scope);
+			};
+			Object.defineProperty(f, 'name', {
+				value: n1,
+				writable: false
+			});
+			values[n1 as string] = f;
+			nstack.push(f);
 		} else if (type === I.IEXPR) {
 			nstack.push(createExpressionEvaluator(item, expr));
 		} else if (type === I.IEXPREVAL) {
@@ -124,7 +120,7 @@ export default async function evaluate(tokens: Instr[], expr: Expression, values
 	return nstack[0] === 0 ? 0 : resolveExpression(nstack[0], values);
 }
 
-function createExpressionEvaluator(token, expr) {
+function createExpressionEvaluator(token: ExpressionInstruction, expr: Expression) {
 	if (isExpressionEvaluator(token)) return token;
 
 	return new Instruction(I.IEXPREVAL, async function (scope) {

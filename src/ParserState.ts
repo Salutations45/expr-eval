@@ -2,8 +2,9 @@ import { T, Token } from './Token';
 import { Instruction, I, ternaryInstruction, binaryInstruction, unaryInstruction, Instr } from './Instruction';
 import contains from './contains';
 import { TokenStream } from './TokenStream';
-import { Value } from './Value';
 import { Parser } from './Parser';
+
+type TokenMatcher = string | string[] | ((token: Token)=>boolean);
 
 export class ParserState {
 
@@ -25,7 +26,7 @@ export class ParserState {
 		return (this.nextToken = this.tokens.next());
 	}
 
-	tokenMatches(token: Token, value?: string | string[] | ((token: Token)=>boolean) ) {
+	tokenMatches(token: Token, value?: TokenMatcher ) {
 		if (typeof value === 'undefined') {
 			return true;
 		} else if (Array.isArray(value)) {
@@ -49,7 +50,7 @@ export class ParserState {
 		this.nextToken = this.savedNextToken;
 	}
 
-	accept(type: T, value?) {
+	accept(type: T, value?: TokenMatcher) {
 		if (this.nextToken!.type === type && this.tokenMatches(this.nextToken!, value)) {
 			this.next();
 			return true;
@@ -57,7 +58,7 @@ export class ParserState {
 		return false;
 	}
 
-	expect(type: T, value?: Value) {
+	expect(type: T, value?: TokenMatcher) {
 		if (!this.accept(type, value)) {
 			const coords = this.tokens.getCoordinates();
 			throw new Error('parse error [' + coords.line + ':' + coords.column + ']: Expected ' + (value || type));
