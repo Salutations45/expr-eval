@@ -126,7 +126,7 @@ exception.
 ```js
     js> expr = Parser.parse("2 ^ x");
     (2^x)
-    js> expr.evaluate({ x: 3 });
+    js> await expr.evaluate({ x: 3 });
     8
 ```
 #### substitute(variable: string, expression: Expression | string | number)
@@ -137,9 +137,9 @@ or number, it will be parsed into an `Expression`.
 ```js
     js> expr = Parser.parse("2 * x + 1");
     ((2*x)+1)
-    js> expr.substitute("x", "4 * x");
+    js> expr2 = expr.substitute("x", "4 * x");
     ((2*(4*x))+1)
-    js> expr2.evaluate({ x: 3 });
+    js> await expr2.evaluate({ x: 3 });
     25
 ```
 #### simplify(variables: object)
@@ -158,7 +158,7 @@ replaced with "8", resulting in `((8*x)+1)`.
 ```js
     js> expr = Parser.parse("x * (y * atan(1))").simplify({ y: 4 });
     (x*3.141592653589793)
-    js> expr.evaluate({ x: 2 });
+    js> await expr.evaluate({ x: 2 });
     6.283185307179586
 ```
 #### variables(options?: object)
@@ -304,11 +304,11 @@ As constants can also be functions, if you need additional functions that aren't
     parser.consts.customAddFunction = function (arg1, arg2) {
       return arg1 + arg2;
     };
-    parser.evaluate('customAddFunction(2, 4) == 6'); // true
+    await parser.evaluate('customAddFunction(2, 4) == 6'); // true
 
     // Remove the random function
     delete parser.consts.random;
-    parser.evaluate('random(10)'); // This will fail
+    await parser.evaluate('random(10)'); // This will fail
 ```
 
 #### Array literals
@@ -331,7 +331,8 @@ Examples:
 ## Main differences from silentmatt/expr-eval
 - Converted to typescript
 - Support for async custom functions, making evalutation entirely async (Promise based)
-- Removed some math related functions and related operators (Custom functions are available if necessary)
+- Functions merged into constants
+- Removed some math related functions and related operators (Custom functions are available if needed)
 
 ## Tests
 

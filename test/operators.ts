@@ -547,9 +547,9 @@ describe('Operators', async function () {
 
 			assert.strictEqual(parser.parse('sign -0.001').simplify().toString(), '(-1)');
 
-			assert.strictEqual(parser.parse('sign x').toJSFunction('x')(0), 0);
-			assert.strictEqual(parser.parse('sign x').toJSFunction('x')(2), 1);
-			assert.strictEqual(parser.parse('sign x').toJSFunction('x')(-2), -1);
+			assert.strictEqual(await parser.parse('sign x').toJSFunction('x')(0), 0);
+			assert.strictEqual(await parser.parse('sign x').toJSFunction('x')(2), 1);
+			assert.strictEqual(await parser.parse('sign x').toJSFunction('x')(-2), -1);
 		});
 	});
 });

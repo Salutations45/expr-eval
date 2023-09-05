@@ -50,7 +50,7 @@ export default function expressionToString(tokens: Instr[], toJS: boolean) {
 				throw new Error('invalid Expression');
 			}
 		} else if (type === I.IVAR || type === I.IVARNAME) {
-			nstack.push(item.value as string);
+			nstack.push(item.value);
 		} else if (type === I.IOP1) {
 			const n1 = nstack.pop()!;
 			const f = item.value;
@@ -71,8 +71,12 @@ export default function expressionToString(tokens: Instr[], toJS: boolean) {
 			while (argCount-- > 0) {
 				args.unshift(nstack.pop()!);
 			}
-			const f = nstack.pop();
-			nstack.push(f + '(' + args.join(', ') + ')');
+			const f = nstack.pop()!;
+			if(toJS) {
+				nstack.push('(await ' + f + '(' + args.join(', ') + '))');
+			}else{
+				nstack.push(f + '(' + args.join(', ') + ')');
+			}
 		} else if (type === I.IFUNDEF) {
 			const n2 = nstack.pop()!;
 			let argCount = Number(item.value);
@@ -82,7 +86,7 @@ export default function expressionToString(tokens: Instr[], toJS: boolean) {
 			}
 			const n1 = nstack.pop()!;
 			if (toJS) {
-				nstack.push('(' + n1 + ' = function(' + args.join(', ') + ') { return ' + n2 + ' })');
+				nstack.push('(' + n1 + ' = async function(' + args.join(', ') + ') { return ' + n2 + ' })');
 			} else {
 				nstack.push('(' + n1 + '(' + args.join(', ') + ') = ' + n2 + ')');
 			}

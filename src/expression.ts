@@ -43,8 +43,8 @@ export class Expression {
 	}
 
 	toJSFunction(param?: string, variables?: { [propertyName: string]: unknown }) {
-		const f = new Function(param!, 'with(this.parser.consts) with (this.parser.ternaryOps) with (this.parser.binaryOps) with (this.parser.unaryOps) { return ' + expressionToString(this.simplify(variables).tokens, true) + '; }'); // eslint-disable-line no-new-func
-		return (...args: unknown[]) => {
+		const f = new Function(param!, 'with(this.parser.consts) with (this.parser.ternaryOps) with (this.parser.binaryOps) with (this.parser.unaryOps) { return (async function(){ return ' + expressionToString(this.simplify(variables).tokens, true) + ';})() }'); // eslint-disable-line no-new-func
+		return async(...args: unknown[]) => {
 			return f.apply(this, args);
 		};
 	}

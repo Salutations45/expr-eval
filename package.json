@@ -1,6 +1,6 @@
 {
   "name": "expr-eval",
-  "version": "3.0.0",
+  "version": "0.1.0",
   "description": "Mathematical expression evaluator",
   "main": "dist/index.js",
   "types": "dist/index.ts",
