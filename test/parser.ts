@@ -3,7 +3,7 @@
 'use strict';
 
 import { strictEqual, throws, deepStrictEqual, rejects } from 'assert';
-import { Parser } from '../src/index';
+import { Parser } from '../dist/index';
 
 describe('Parser', async function () {
 	[

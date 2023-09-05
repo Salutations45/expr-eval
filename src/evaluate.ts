@@ -8,10 +8,7 @@ export default async function evaluate(tokens: Instr[], expr: Expression, scope:
 		return resolveExpression(tokens, scope);
 	}
 
-	const numTokens = tokens.length;
-
-	for (let i = 0; i < numTokens; i++) {
-		const item = tokens[i];
+	for (const item of tokens) {
 		const type = item.type;
 		if (type === I.INUMBER || type === I.IVARNAME) {
 			nstack.push(item.value);

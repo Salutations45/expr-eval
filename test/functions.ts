@@ -3,7 +3,7 @@
 'use strict';
 
 import { strictEqual, ok, rejects } from 'assert';
-import { Parser } from '../src/index';
+import { Parser } from '../dist/index';
 
 describe('Functions', async function () {
   describe('random()', async function () {

@@ -2,8 +2,7 @@ import { I, Instr } from './Instruction';
 
 export default function expressionToString(tokens: Instr[], toJS: boolean) {
 	let nstack: string[] = [];
-	for (let i = 0; i < tokens.length; i++) {
-		const item = tokens[i];
+	for (const item of tokens) {
 		const type = item.type;
 		if (type === I.INUMBER) {
 			if (typeof item.value === 'number' && item.value < 0) {

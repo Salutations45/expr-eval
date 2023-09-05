@@ -3,7 +3,7 @@
 'use strict';
 
 import { strictEqual, deepStrictEqual, rejects, ok } from 'assert';
-import { Parser } from '../src/index';
+import { Parser } from '../dist/index';
 
 describe('Expression', async function () {
 	describe('evaluate()', async function () {
@@ -251,6 +251,18 @@ describe('Expression', async function () {
 
 		it('3 and 6 ? 45 > 5 * 11 ? 3 * 3 : 2.4 : 0', async function () {
 			strictEqual(await Parser.evaluate('3 and 6 ? 45 > 5 * 11 ? 3 * 3 : 2.4 : 0'), 2.4);
+		});
+
+		it('should call custom functions', async function () {
+			const parser = new Parser();
+			parser.consts.customFunction = (a: number, b: number) => a+b;
+			strictEqual(await parser.evaluate('customFunction(3,4)'), 7);
+		});
+
+		it('should call custom async functions', async function () {
+			const parser = new Parser();
+			parser.consts.customFunction = async (a: number, b: number) => a+b;
+			strictEqual(await parser.evaluate('customFunction(3,4)'), 7);
 		});
 	});
 

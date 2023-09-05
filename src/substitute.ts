@@ -3,12 +3,10 @@ import { Instruction, I, ternaryInstruction, binaryInstruction, unaryInstruction
 
 export default function substitute(tokens: Instr[], variable: string, expr: Expression) {
 	const newexpression: Instr[] = [];
-	for (let i = 0; i < tokens.length; i++) {
-		const item = tokens[i];
+	for (const item of tokens) {
 		const type = item.type;
 		if (type === I.IVAR && item.value === variable) {
-			for (let j = 0; j < expr.tokens.length; j++) {
-				const expritem = expr.tokens[j];
+			for (const expritem of expr.tokens) {
 				let replitem: Instr;
 				if (expritem.type === I.IOP1) {
 					replitem = unaryInstruction(expritem.value);

@@ -117,7 +117,7 @@ export class Parser {
 		'?': condition
 	};
 
-	consts = {
+	consts: { [key: string]: unknown } = {
 		random,
 		min,
 		max,

@@ -3,7 +3,7 @@
 'use strict';
 
 import assert from 'assert';
-import { Parser } from '../src/index';
+import { Parser } from '../dist/index';
 import spy from './lib/spy';
 
 function returnTrue() {

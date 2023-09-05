@@ -9,8 +9,7 @@ export default function getSymbols(tokens: Instr[], symbols: string[], options: 
 	const withMembers = !!options.withMembers;
 	let prevVar: string | null = null;
 
-	for (let i = 0; i < tokens.length; i++) {
-		const item = tokens[i];
+	for (const item of tokens) {
 		if (item.type === I.IVAR || item.type === I.IVARNAME) {
 			if (!withMembers && !contains(symbols, item.value)) {
 				symbols.push(item.value);

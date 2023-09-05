@@ -4,8 +4,7 @@ import { Parser } from './Parser';
 export default function simplify(tokens: Instr[], parser: Parser, values: { [propertyName: string]: unknown }) {
 	const nstack: Instr[] = [];
 	const newexpression: Instr[] = [];
-	for (let i = 0; i < tokens.length; i++) {
-		let item = tokens[i];
+	for (const item of tokens) {
 		const type = item.type;
 		if (type === I.INUMBER || type === I.IVARNAME) {
 			if (Array.isArray(item.value)) {
@@ -19,14 +18,12 @@ export default function simplify(tokens: Instr[], parser: Parser, values: { [pro
 				nstack.push(item);
 			}
 		} else if (type === I.IVAR && Object.keys(values).includes(item.value)) {
-			item = new Instruction(I.INUMBER, values[item.value]);
-			nstack.push(item);
+			nstack.push(new Instruction(I.INUMBER, values[item.value]));
 		} else if (type === I.IOP2 && nstack.length > 1) {
 			const n2 = nstack.pop()!;
 			const n1 = nstack.pop()!;
 			const f = parser.binaryOps[item.value];
-			item = new Instruction(I.INUMBER, f(n1.value, n2.value));
-			nstack.push(item);
+			nstack.push(new Instruction(I.INUMBER, f(n1.value, n2.value)));
 		} else if (type === I.IOP3 && nstack.length > 2) {
 			const n3 = nstack.pop() as any;
 			const n2 = nstack.pop() as any;
@@ -35,14 +32,12 @@ export default function simplify(tokens: Instr[], parser: Parser, values: { [pro
 				nstack.push(n1.value ? n2.value : n3.value);
 			} else {
 				const f = parser.ternaryOps[item.value];
-				item = new Instruction(I.INUMBER, f(n1.value, n2.value, n3.value));
-				nstack.push(item);
+				nstack.push(new Instruction(I.INUMBER, f(n1.value, n2.value, n3.value)));
 			}
 		} else if (type === I.IOP1 && nstack.length > 0) {
 			const n1 = nstack.pop()!;
 			const f = parser.unaryOps[item.value];
-			item = new Instruction(I.INUMBER, f(n1.value));
-			nstack.push(item);
+			nstack.push(new Instruction(I.INUMBER, f(n1.value)));
 		} else if (type === I.IEXPR) {
 			while (nstack.length > 0) {
 				newexpression.push(nstack.shift()!);

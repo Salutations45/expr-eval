@@ -266,9 +266,10 @@ export class ParserState {
 
 	parsePostfixExpression(instr: Instr[]) {
 		this.parseFunctionCall(instr);
+		/*
 		while (this.accept(T.TOP, '!')) {
 			instr.push(unaryInstruction('!'));
-		}
+		}*/
 	}
 
 	parseFunctionCall(instr: Instr[]) {
